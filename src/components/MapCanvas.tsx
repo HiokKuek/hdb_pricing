@@ -3,8 +3,9 @@
 import { CircleMarker, MapContainer, Marker, TileLayer, Tooltip, useMap } from "react-leaflet";
 import L from "leaflet";
 import { useEffect, useMemo, useState } from "react";
-import type { BlockSummary, MapCluster, MapMarker, PriceBand } from "@/lib/types";
+import type { BlockSummary, MapCluster, MapMarker } from "@/lib/types";
 import { DEFAULT_MAP_CENTER } from "@/lib/blocks";
+import { classifyMapColourScale, MAP_COLOUR_SCALE } from "@/lib/map-colour-scale.generated";
 import { toPsf } from "@/lib/pricing";
 
 type Props = {
@@ -15,20 +16,6 @@ type Props = {
   onViewportChange: (viewport: { bounds: { south: number; west: number; north: number; east: number }; zoom: number }) => void;
   initialZoom: number;
 };
-
-const colours: Record<PriceBand, string> = {
-  "under-6000": "#74c8ba",
-  "6000-7000": "#d9bb61",
-  "7000-8000": "#e88858",
-  "8000-plus": "#bc4a45"
-};
-
-function band(value: number): PriceBand {
-  if (value < 560) return "under-6000";
-  if (value < 650) return "6000-7000";
-  if (value < 745) return "7000-8000";
-  return "8000-plus";
-}
 
 function Reframe({ focus }: { focus: [number, number] | null }) {
   const map = useMap();
@@ -67,18 +54,11 @@ function MapSizeObserver() {
 }
 
 function clusterIcon(cluster: MapCluster, hovered: boolean) {
-  const { under560, from560To650, from650To745, above745 } = cluster.priceBandCounts;
   const total = cluster.clusterCount || 1;
-  const stops = [
-    ["#74c8ba", under560],
-    ["#d9bb61", from560To650],
-    ["#e88858", from650To745],
-    ["#bc4a45", above745],
-  ] as const;
   let cursor = 0;
-  const gradient = stops.map(([colour, count]) => {
+  const gradient = MAP_COLOUR_SCALE.map(({ colour, id }) => {
     const start = cursor;
-    cursor += (count / total) * 100;
+    cursor += (cluster.priceBandCounts[id] / total) * 100;
     return `${colour} ${start}% ${cursor}%`;
   }).join(", ");
   const baseSize = Math.min(48, 24 + Math.round(Math.log2(total + 1) * 5));
@@ -132,7 +112,7 @@ export default function MapCanvas({ markers, selectedId, focus, onSelect, onView
             key={block.id}
             center={[block.latitude, block.longitude]}
             radius={isSelected || isHovered ? 12 : 9}
-            pathOptions={{ color: "#f7f5ef", weight: isSelected ? 4 : isHovered ? 3 : 2, fillColor: colours[band(toPsf(block.medianPsm))], fillOpacity: 1, renderer: canvasRenderer }}
+            pathOptions={{ color: "#f7f5ef", weight: isSelected ? 4 : isHovered ? 3 : 2, fillColor: MAP_COLOUR_SCALE.find((entry) => entry.id === classifyMapColourScale(toPsf(block.medianPsm)))!.colour, fillOpacity: 1, renderer: canvasRenderer }}
             eventHandlers={{ click: () => onSelect(block), mouseover: () => setHoveredBlockId(block.id), mouseout: () => setHoveredBlockId(null) }}
           >
             <Tooltip direction="top" offset={[0, -9]} opacity={1}>

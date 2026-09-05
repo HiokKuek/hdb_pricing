@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { demoBlocks } from "./demo-data";
+import { emptyMapColourBandCounts, MAP_COLOUR_SCALE } from "./map-colour-scale.generated";
 import type { BlockSummary, MapFilters, MapMarker } from "./types";
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -26,11 +27,24 @@ type MapMarkerRow = {
   median_price: number | string | null;
   transaction_count: number | null;
   cluster_count: number | null;
-  under_560_count: number | null;
-  from_560_to_650_count: number | null;
-  from_650_to_745_count: number | null;
-  above_745_count: number | null;
+  price_band_counts: unknown;
 };
+
+export function toMapColourBandCounts(value: unknown) {
+  const counts = value && typeof value === "object" ? value as Record<string, unknown> : {};
+  // The deployed database may still return the pre-v1 RPC shape while the
+  // browser update rolls out. Keep this translation at the adapter seam.
+  const legacyKeys = {
+    "under-560": "under_560_count",
+    "560-650": "from_560_to_650_count",
+    "650-745": "from_650_to_745_count",
+    "745-plus": "above_745_count",
+  } as const;
+  return MAP_COLOUR_SCALE.reduce((result, band) => {
+    result[band.id] = Number(counts[band.id] ?? counts[legacyKeys[band.id]] ?? 0);
+    return result;
+  }, emptyMapColourBandCounts());
+}
 
 function toMapMarker(row: MapMarkerRow): MapMarker {
   if (row.marker_kind === "cluster") {
@@ -40,12 +54,7 @@ function toMapMarker(row: MapMarkerRow): MapMarker {
       latitude: Number(row.latitude),
       longitude: Number(row.longitude),
       clusterCount: Number(row.cluster_count ?? 0),
-      priceBandCounts: {
-        under560: Number(row.under_560_count ?? 0),
-        from560To650: Number(row.from_560_to_650_count ?? 0),
-        from650To745: Number(row.from_650_to_745_count ?? 0),
-        above745: Number(row.above_745_count ?? 0),
-      },
+      priceBandCounts: toMapColourBandCounts(row.price_band_counts),
     };
   }
 

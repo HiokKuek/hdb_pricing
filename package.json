@@ -11,7 +11,9 @@
     "verify:months": "tsx scripts/verify-month-normalization.ts",
     "verify:retry": "tsx scripts/verify-retry.ts",
     "verify:geocoding": "tsx scripts/verify-geocoding-query.ts",
-    "verify:square-feet": "tsx scripts/verify-square-feet.ts"
+    "verify:square-feet": "tsx scripts/verify-square-feet.ts",
+    "generate:map-colour-scale": "tsx scripts/generate-map-colour-scale.ts",
+    "verify:map-colour-scale": "tsx scripts/verify-map-colour-scale.ts"
   },
   "dependencies": {
     "@govtechsg/sgds-web-component": "^3.26.1",

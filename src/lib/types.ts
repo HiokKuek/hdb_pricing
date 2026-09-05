@@ -1,4 +1,4 @@
-export type PriceBand = "under-6000" | "6000-7000" | "7000-8000" | "8000-plus";
+import type { MapColourBandCounts } from "./map-colour-scale.generated";
 
 export type Transaction = {
   month: string;
@@ -23,20 +23,13 @@ export type BlockSummary = {
   transactions?: Transaction[];
 };
 
-export type PriceBandCounts = {
-  under560: number;
-  from560To650: number;
-  from650To745: number;
-  above745: number;
-};
-
 export type MapCluster = {
   kind: "cluster";
   id: string;
   latitude: number;
   longitude: number;
   clusterCount: number;
-  priceBandCounts: PriceBandCounts;
+  priceBandCounts: MapColourBandCounts;
 };
 
 export type MapMarker = (BlockSummary & { kind: "block" }) | MapCluster;

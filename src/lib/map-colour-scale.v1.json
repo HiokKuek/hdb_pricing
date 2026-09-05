@@ -1,0 +1,9 @@
+{
+  "version": "v1",
+  "bands": [
+    { "id": "under-560", "maximumPsf": 560, "label": "Under $560", "colour": "#74c8ba" },
+    { "id": "560-650", "maximumPsf": 650, "label": "$560–650", "colour": "#d9bb61" },
+    { "id": "650-745", "maximumPsf": 745, "label": "$650–745", "colour": "#e88858" },
+    { "id": "745-plus", "maximumPsf": null, "label": "$745+", "colour": "#bc4a45" }
+  ]
+}

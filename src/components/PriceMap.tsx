@@ -14,6 +14,7 @@ import {
 } from "@govtechsg/sgds-web-component/react";
 import type { BlockSummary, MapFilters, MapMarker, Transaction } from "@/lib/types";
 import type { MapBounds } from "@/lib/blocks";
+import { MAP_COLOUR_SCALE } from "@/lib/map-colour-scale.generated";
 import { toPsf, toSqft } from "@/lib/pricing";
 
 const MapCanvas = dynamic(() => import("./MapCanvas"), { ssr: false, loading: () => <div className="map-loading">Drawing the field map…</div> });
@@ -227,10 +228,7 @@ export default function PriceMap({ initialMarkers, flatTypes, initialFilters, in
           </div>
           <aside className="sgds:pointer-events-auto sgds:absolute sgds:left-4 sgds:bottom-4 sgds:flex sgds:flex-wrap sgds:items-center sgds:gap-component-xs sgds:bg-surface-raised sgds:border sgds:border-default sgds:rounded-lg sgds:shadow-lg sgds:p-component-xs" aria-label="Price per square foot legend">
             <div className="sgds:text-overline-md sgds:font-semibold sgds:leading-2-xs sgds:tracking-wide sgds:uppercase sgds:text-body-subtle">Price per sq ft</div>
-            <div className="sgds:flex sgds:items-center sgds:gap-text-2-xs"><span className="map-legend-swatch map-legend-swatch-under-560" aria-hidden="true" /><span className="sgds:text-label-sm sgds:font-regular sgds:leading-2-xs sgds:tracking-normal sgds:text-body-default">Under $560</span></div>
-            <div className="sgds:flex sgds:items-center sgds:gap-text-2-xs"><span className="map-legend-swatch map-legend-swatch-560-650" aria-hidden="true" /><span className="sgds:text-label-sm sgds:font-regular sgds:leading-2-xs sgds:tracking-normal sgds:text-body-default">$560–650</span></div>
-            <div className="sgds:flex sgds:items-center sgds:gap-text-2-xs"><span className="map-legend-swatch map-legend-swatch-650-745" aria-hidden="true" /><span className="sgds:text-label-sm sgds:font-regular sgds:leading-2-xs sgds:tracking-normal sgds:text-body-default">$650–745</span></div>
-            <div className="sgds:flex sgds:items-center sgds:gap-text-2-xs"><span className="map-legend-swatch map-legend-swatch-745-plus" aria-hidden="true" /><span className="sgds:text-label-sm sgds:font-regular sgds:leading-2-xs sgds:tracking-normal sgds:text-body-default">$745+</span></div>
+            {MAP_COLOUR_SCALE.map((band) => <div className="sgds:flex sgds:items-center sgds:gap-text-2-xs" key={band.id}><span className={`map-legend-swatch map-colour-scale-${band.id}`} aria-hidden="true" /><span className="sgds:text-label-sm sgds:font-regular sgds:leading-2-xs sgds:tracking-normal sgds:text-body-default">{band.label}</span></div>)}
           </aside>
 
           {selected && <aside className="sgds:pointer-events-auto sgds:absolute sgds:right-4 sgds:bottom-4 sgds:w-[calc(100%-2rem)] sgds:md:top-48 sgds:md:bottom-auto sgds:md:w-80 sgds:max-h-[calc(100%-14rem)] sgds:overflow-y-auto sgds:bg-surface-raised sgds:border sgds:border-default sgds:rounded-lg sgds:shadow-lg sgds:p-component-xs" aria-live="polite">
