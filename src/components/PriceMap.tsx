@@ -346,7 +346,7 @@ export default function PriceMap({ initialMarkers, flatTypes, initialFilters, in
             onClick={() => mobileMenuOpen ? closeMobileMenu() : openMobileMenu()}
           >
             <span className="map-menu-toggle-bar" />
-            <span className="map-menu-toggle-bar" />
+            {mobileMenuOpen ? <span className="map-menu-toggle-spacer" aria-hidden="true" /> : <span className="map-menu-toggle-bar" />}
             <span className="map-menu-toggle-bar" />
           </button>
           {mobileDrawerMounted && <div className={`map-options-drawer-layer sgds:pointer-events-auto sgds:lg:hidden${mobileMenuOpen ? " map-options-drawer-layer--open" : ""}`}>
