@@ -378,7 +378,6 @@ export default function PriceMap({ initialMarkers, flatTypes, initialFilters, in
           </div>}
           {showMapUpdate && <div className="sgds:pointer-events-none sgds:absolute sgds:z-800 sgds:right-3 sgds:bottom-40 sgds:lg:right-4 sgds:lg:bottom-4 sgds:flex sgds:items-center sgds:gap-text-2-xs sgds:bg-surface-raised sgds:border sgds:border-default sgds:rounded-md sgds:shadow-lg sgds:px-3 sgds:py-2" role="status">
             <SgdsSpinner size="xs" tone="neutral" label="Updating map" orientation="horizontal" />
-            <span className="sgds:text-body-sm sgds:leading-2-xs sgds:text-body-subtle">Updating map</span>
           </div>}
           <aside className="map-legend sgds:pointer-events-auto sgds:absolute sgds:left-3 sgds:right-3 sgds:grid sgds:grid-cols-2 sgds:gap-x-3 sgds:gap-y-2 sgds:bg-surface-raised sgds:border sgds:border-default sgds:rounded-lg sgds:shadow-lg sgds:p-3 sgds:lg:right-auto sgds:lg:flex sgds:lg:flex-wrap sgds:lg:items-center sgds:lg:gap-component-xs sgds:lg:p-component-xs" aria-label="Price per square foot legend">
             <div className="sgds:col-span-2 sgds:shrink-0 sgds:text-overline-md sgds:font-semibold sgds:leading-2-xs sgds:tracking-wide sgds:uppercase sgds:text-body-subtle sgds:lg:col-auto">Price per sq ft</div>
