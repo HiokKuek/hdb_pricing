@@ -18,18 +18,18 @@
 
 **Public Explorer** — The unauthenticated version of the HDB Pricing Map. It does not retain accounts, saved searches, or favourites.
 
-**Buyer Filters** — The controls a Buyer uses to define Comparability: flat type, budget, floor area, remaining lease, and transaction recency. The first release actively filters by every flat type supplied by HDB; storey range is displayed as transaction detail rather than used as a first-release filter.
+**Buyer Filters** — The controls a Buyer uses to define Comparability: flat type, budget, floor area, remaining lease, and transaction recency. A selection applies across the whole map, including later pans, without changing the Buyer's current map position or zoom. The first release actively filters by every flat type supplied by HDB; storey range is displayed as Transaction Detail rather than used as a first-release filter.
 
 **Place Search** — A OneMap-backed search that lets a Buyer navigate the map to an address, MRT station, or other Singapore place.
 
 **Indicative Price Notice** — The clear statement that resale prices are transaction records, not valuations, and vary with factors not fully represented in the map. It appears beside price information and is expanded in the footer with source information.
 
-**Default Market Lens** — The initial comparison shown to a Buyer: 4-room flats registered in the last 12 months, without a floor-area or remaining-lease restriction. Buyers can replace the flat type through Buyer Filters.
+**Default Market Lens** — The initial comparison shown to a Buyer: all flat types registered in the last 12 months, without a floor-area or remaining-lease restriction. Buyers can refine the results through Buyer Filters.
 
 **Map Colour Scale** — The restrained visual scale that represents Comparable Price. It supports geographic comparison without presenting a price as a valuation or recommendation.
 
 **Price Band** — A fixed, labelled price-per-square-foot range in the Map Colour Scale. A block keeps the same band meaning as the Buyer pans or changes filters.
 
-**Transaction Detail** — The evidence shown after a Buyer selects a block: its recent Resale Transactions with month, flat type, floor area in square feet, storey range, lease commencement year, total sale price, and price per square foot.
+**Transaction Detail** — The evidence shown after a Buyer selects a block: its recent Resale Transactions with month, flat type, floor area in square feet, storey range, lease commencement year, total sale price, and price per square foot. It closes when a Buyer changes any Buyer Filter.
 
-**No-Match State** — The honest result when a block or filter selection has no qualifying Resale Transactions. It offers a broader recency window and never substitutes an estimate.
+**No-Match State** — The honest result when a block or filter selection has no qualifying Resale Transactions. When an active Buyer Filter has matches elsewhere but none in the current map view, it appears as a small dismissible toast for about five seconds that encourages the Buyer to pan or search another location. It offers a broader recency window and never substitutes an estimate.

@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   SgdsButton,
   SgdsDrawer,
@@ -9,8 +9,9 @@ import {
   SgdsIconButton,
   SgdsInput,
   SgdsSelect,
-  SgdsSelectOption,
   SgdsSpinner,
+  SgdsToast,
+  SgdsToastContainer,
 } from "@govtechsg/sgds-web-component/react";
 import type { BlockSummary, MapFilters, MapMarker, Transaction } from "@/lib/types";
 import type { MapBounds } from "@/lib/blocks";
@@ -22,11 +23,16 @@ const MapCanvas = dynamic(() => import("./MapCanvas"), { ssr: false, loading: ()
 const currency = new Intl.NumberFormat("en-SG", { style: "currency", currency: "SGD", maximumFractionDigits: 0 });
 type Place = { address: string; latitude: number; longitude: number };
 type ValueElement = HTMLElement & { value: string };
-type SelectElement = HTMLElement & { value: string };
 type Viewport = { bounds: MapBounds; zoom: number };
 
 function compactAddress(address: string) {
   return address.length > 54 ? `${address.slice(0, 51)}…` : address;
+}
+
+function MapSelectOption({ value, children }: { value: string; children: ReactNode }) {
+  // SGDS upgrades this custom element before React hydrates and adds ARIA
+  // attributes. Its value must be an HTML attribute at first paint.
+  return <sgds-select-option value={value} suppressHydrationWarning>{children}</sgds-select-option>;
 }
 
 export default function PriceMap({ initialMarkers, flatTypes, initialFilters, initialBounds, initialZoom }: { initialMarkers: MapMarker[]; flatTypes: string[]; initialFilters: MapFilters; initialBounds: MapBounds; initialZoom: number }) {
@@ -43,9 +49,7 @@ export default function PriceMap({ initialMarkers, flatTypes, initialFilters, in
   const [focus, setFocus] = useState<[number, number] | null>(null);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [isCompactViewport, setIsCompactViewport] = useState(false);
-  const flatTypeRef = useRef<SelectElement>(null);
-  const priceRef = useRef<SelectElement>(null);
-  const leaseRef = useRef<SelectElement>(null);
+  const [showEmptyViewToast, setShowEmptyViewToast] = useState(false);
   const visibleMarkers = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
     if (!normalizedQuery) return markers;
@@ -87,29 +91,21 @@ export default function PriceMap({ initialMarkers, flatTypes, initialFilters, in
     setLoadingMarkers(true);
     fetch(`/api/block-summaries?${parameters}`, { signal: controller.signal })
       .then(async (response) => response.ok ? response.json() : Promise.reject(new Error("Could not load map markers.")))
-      .then((data: { markers: MapMarker[] }) => { setMarkers(data.markers); setSelected(null); })
-      .catch((error: unknown) => { if (!(error instanceof DOMException && error.name === "AbortError")) setMarkers([]); })
+      .then((data: { markers: MapMarker[] }) => {
+        if (controller.signal.aborted) return;
+        setMarkers(data.markers);
+        setSelected(null);
+        setShowEmptyViewToast(data.markers.length === 0 && (flatType !== "all" || budget !== "any" || leaseBand !== "any"));
+      })
+      .catch((error: unknown) => {
+        if (!(error instanceof DOMException && error.name === "AbortError")) {
+          setMarkers([]);
+          setShowEmptyViewToast(false);
+        }
+      })
       .finally(() => { if (!controller.signal.aborted) setLoadingMarkers(false); });
     return () => controller.abort();
   }, [viewport, flatType, budget, leaseBand]);
-
-  useEffect(() => {
-    const synchronise = () => {
-      const setDisplayValue = (element: SelectElement | null, value: string) => {
-        if (!element) return;
-        // SGDS Select resolves its display label after its slotted options load.
-        // Cycling the value ensures that first paint has both the value and label.
-        if (element.value === value) element.value = "";
-        element.value = value;
-      };
-      setDisplayValue(flatTypeRef.current, flatType);
-      setDisplayValue(priceRef.current, budget);
-      setDisplayValue(leaseRef.current, leaseBand);
-    };
-    const frame = window.requestAnimationFrame(synchronise);
-    const timer = window.setTimeout(synchronise, 100);
-    return () => { window.cancelAnimationFrame(frame); window.clearTimeout(timer); };
-  }, [flatType, budget, leaseBand]);
 
   const updateViewport = useCallback((nextViewport: Viewport) => setViewport((current) => JSON.stringify(current) === JSON.stringify(nextViewport) ? current : nextViewport), []);
 
@@ -130,20 +126,26 @@ export default function PriceMap({ initialMarkers, flatTypes, initialFilters, in
   }
 
   function getSelectValue(event: Event) {
-    return (event.currentTarget as ValueElement).value;
+    return (event.target as ValueElement).value;
+  }
+
+  function clearTransactionDetail() {
+    setSelected(null);
+    setTransactions(null);
   }
 
   function updateFlatType(event: Event) {
-    setSelected(null);
-    setTransactions(null);
+    clearTransactionDetail();
     setFlatType(getSelectValue(event));
   }
 
   function updatePriceBand(event: Event) {
+    clearTransactionDetail();
     setBudget(getSelectValue(event) as MapFilters["priceBand"]);
   }
 
   function updateLeaseBand(event: Event) {
+    clearTransactionDetail();
     setLeaseBand(getSelectValue(event) as MapFilters["leaseBand"]);
   }
 
@@ -185,26 +187,26 @@ export default function PriceMap({ initialMarkers, flatTypes, initialFilters, in
                 )}
               </div>
               <div className="sgds:lg:self-center sgds:lg:-translate-y-4">
-                <SgdsSelect ref={flatTypeRef} label="Flat type" name="flat-type" value={flatType} placeholder="All flat types" onSgdsChange={updateFlatType} onSgdsSelect={updateFlatType}>
-                  <SgdsSelectOption value="all">All flat types</SgdsSelectOption>
-                  {flatTypes.map((type) => <SgdsSelectOption key={type} value={type}>{type}</SgdsSelectOption>)}
+                <SgdsSelect label="Flat type" name="flat-type" value={flatType} placeholder="All flat types" onSgdsChange={updateFlatType}>
+                  <MapSelectOption value="all">All flat types</MapSelectOption>
+                  {flatTypes.map((type) => <MapSelectOption key={type} value={type}>{type}</MapSelectOption>)}
                 </SgdsSelect>
               </div>
               <div className="sgds:lg:self-center sgds:lg:-translate-y-4">
-                <SgdsSelect ref={priceRef} label="Price" name="price" value={budget} placeholder="Any price" onSgdsChange={updatePriceBand} onSgdsSelect={updatePriceBand}>
-                  <SgdsSelectOption value="any">Any price</SgdsSelectOption>
-                  <SgdsSelectOption value="under-650">Under $650k</SgdsSelectOption>
-                  <SgdsSelectOption value="650-850">$650k–850k</SgdsSelectOption>
-                  <SgdsSelectOption value="850-plus">$850k+</SgdsSelectOption>
+                <SgdsSelect label="Price" name="price" value={budget} placeholder="Any price" onSgdsChange={updatePriceBand}>
+                  <MapSelectOption value="any">Any price</MapSelectOption>
+                  <MapSelectOption value="under-650">Under $650k</MapSelectOption>
+                  <MapSelectOption value="650-850">$650k–850k</MapSelectOption>
+                  <MapSelectOption value="850-plus">$850k+</MapSelectOption>
                 </SgdsSelect>
               </div>
               <div className="sgds:lg:self-center sgds:lg:-translate-y-4">
-                <SgdsSelect ref={leaseRef} label="Lease remaining" name="lease" value={leaseBand} placeholder="Any lease" onSgdsChange={updateLeaseBand} onSgdsSelect={updateLeaseBand}>
-                  <SgdsSelectOption value="any">Any lease</SgdsSelectOption>
-                  <SgdsSelectOption value="80-plus">80+ years</SgdsSelectOption>
-                  <SgdsSelectOption value="70-79">70–79 years</SgdsSelectOption>
-                  <SgdsSelectOption value="60-69">60–69 years</SgdsSelectOption>
-                  <SgdsSelectOption value="under-60">Under 60 years</SgdsSelectOption>
+                <SgdsSelect label="Lease remaining" name="lease" value={leaseBand} placeholder="Any lease" onSgdsChange={updateLeaseBand}>
+                  <MapSelectOption value="any">Any lease</MapSelectOption>
+                  <MapSelectOption value="80-plus">80+ years</MapSelectOption>
+                  <MapSelectOption value="70-79">70–79 years</MapSelectOption>
+                  <MapSelectOption value="60-69">60–69 years</MapSelectOption>
+                  <MapSelectOption value="under-60">Under 60 years</MapSelectOption>
                 </SgdsSelect>
               </div>
             </div>
@@ -231,22 +233,22 @@ export default function PriceMap({ initialMarkers, flatTypes, initialFilters, in
                 <h2 slot="title">Filters</h2>
                 <p slot="description">Refine the resale prices shown on the map.</p>
                 <div className="sgds:flex sgds:flex-col sgds:gap-component-md sgds:pt-component-sm">
-                  <SgdsSelect label="Flat type" name="mobile-flat-type" value={flatType} placeholder="All flat types" onSgdsChange={updateFlatType} onSgdsSelect={updateFlatType}>
-                    <SgdsSelectOption value="all">All flat types</SgdsSelectOption>
-                    {flatTypes.map((type) => <SgdsSelectOption key={type} value={type}>{type}</SgdsSelectOption>)}
+                  <SgdsSelect label="Flat type" name="mobile-flat-type" value={flatType} placeholder="All flat types" onSgdsChange={updateFlatType}>
+                    <MapSelectOption value="all">All flat types</MapSelectOption>
+                    {flatTypes.map((type) => <MapSelectOption key={type} value={type}>{type}</MapSelectOption>)}
                   </SgdsSelect>
-                  <SgdsSelect label="Price" name="mobile-price" value={budget} placeholder="Any price" onSgdsChange={updatePriceBand} onSgdsSelect={updatePriceBand}>
-                    <SgdsSelectOption value="any">Any price</SgdsSelectOption>
-                    <SgdsSelectOption value="under-650">Under $650k</SgdsSelectOption>
-                    <SgdsSelectOption value="650-850">$650k–850k</SgdsSelectOption>
-                    <SgdsSelectOption value="850-plus">$850k+</SgdsSelectOption>
+                  <SgdsSelect label="Price" name="mobile-price" value={budget} placeholder="Any price" onSgdsChange={updatePriceBand}>
+                    <MapSelectOption value="any">Any price</MapSelectOption>
+                    <MapSelectOption value="under-650">Under $650k</MapSelectOption>
+                    <MapSelectOption value="650-850">$650k–850k</MapSelectOption>
+                    <MapSelectOption value="850-plus">$850k+</MapSelectOption>
                   </SgdsSelect>
-                  <SgdsSelect label="Lease remaining" name="mobile-lease" value={leaseBand} placeholder="Any lease" onSgdsChange={updateLeaseBand} onSgdsSelect={updateLeaseBand}>
-                    <SgdsSelectOption value="any">Any lease</SgdsSelectOption>
-                    <SgdsSelectOption value="80-plus">80+ years</SgdsSelectOption>
-                    <SgdsSelectOption value="70-79">70–79 years</SgdsSelectOption>
-                    <SgdsSelectOption value="60-69">60–69 years</SgdsSelectOption>
-                    <SgdsSelectOption value="under-60">Under 60 years</SgdsSelectOption>
+                  <SgdsSelect label="Lease remaining" name="mobile-lease" value={leaseBand} placeholder="Any lease" onSgdsChange={updateLeaseBand}>
+                    <MapSelectOption value="any">Any lease</MapSelectOption>
+                    <MapSelectOption value="80-plus">80+ years</MapSelectOption>
+                    <MapSelectOption value="70-79">70–79 years</MapSelectOption>
+                    <MapSelectOption value="60-69">60–69 years</MapSelectOption>
+                    <MapSelectOption value="under-60">Under 60 years</MapSelectOption>
                   </SgdsSelect>
                 </div>
                 <div slot="footer"><SgdsButton variant="primary" ariaLabel="Apply filters" onClick={() => setMobileFiltersOpen(false)}>Apply filters</SgdsButton></div>
@@ -301,6 +303,12 @@ export default function PriceMap({ initialMarkers, flatTypes, initialFilters, in
             </aside>
           </>}
         </section>
+        <SgdsToastContainer position="bottom-end">
+          <SgdsToast show={showEmptyViewToast} variant="info" title="No matching resale summaries" dismissible autohide delay={5000} onSgdsAfterHide={() => setShowEmptyViewToast(false)}>
+            <SgdsIcon slot="icon" name="info-circle-fill" size="md" />
+            No matching resale summaries in this area. Pan or search another location.
+          </SgdsToast>
+        </SgdsToastContainer>
     </main>
   );
 }
