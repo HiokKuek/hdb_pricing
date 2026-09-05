@@ -302,7 +302,7 @@ export default function PriceMap({ initialMarkers, flatTypes, initialFilters, in
                   disabled={places.length === 0}
                   onClick={selectFirstPlace}
                 />
-                {placeSearchState === "loading" && <div className="place-search-menu" aria-live="polite"><div className="place-search-status"><SgdsSpinner size="xs" label="Finding places" orientation="horizontal" />Finding places…</div></div>}
+                {placeSearchState === "loading" && <div className="place-search-menu" aria-live="polite"><div className="place-search-status"><SgdsSpinner size="xs" label="Finding places" orientation="horizontal" /></div></div>}
                 {placeSearchState === "complete" && places.length > 0 && <div className="place-search-menu" role="listbox" aria-label="Place search results">
                   {places.map((place) => <button className="place-search-result" key={`${place.latitude}-${place.longitude}`} type="button" role="option" aria-label={place.address} onClick={() => selectPlace(place)}>{compactAddress(place.address)}</button>)}
                 </div>}
