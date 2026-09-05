@@ -20,7 +20,7 @@
 
 **Buyer Filters** — The controls a Buyer uses to define Comparability: flat type, budget, floor area, remaining lease, and transaction recency. A selection applies across the whole map, including later pans, without changing the Buyer's current map position or zoom. The first release actively filters by every flat type supplied by HDB; storey range is displayed as Transaction Detail rather than used as a first-release filter.
 
-**Place Search** — A OneMap-backed search that lets a Buyer navigate the map to an address, MRT station, or other Singapore place.
+**Place Search** — A OneMap-backed navigation control that lets a Buyer fly the map to an address, MRT station, or other Singapore place at a consistent detail level. It does not filter map markers or change Buyer Filters.
 
 **Indicative Price Notice** — The clear statement that resale prices are transaction records, not valuations, and vary with factors not fully represented in the map. It appears beside price information and is expanded in the footer with source information.
 
