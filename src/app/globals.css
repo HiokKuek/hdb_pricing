@@ -262,8 +262,10 @@
 
 .map-detail-sheet-content {
   flex: 1 1 auto;
+  overscroll-behavior-y: contain;
   overflow-y: auto;
   padding: 0 1.25rem max(1.5rem, env(safe-area-inset-bottom));
+  touch-action: pan-y;
 }
 
 @media (max-width: 1023px) {
