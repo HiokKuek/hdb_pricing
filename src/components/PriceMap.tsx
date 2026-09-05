@@ -231,7 +231,7 @@ export default function PriceMap({ initialMarkers, flatTypes, initialFilters, in
             {MAP_COLOUR_SCALE.map((band) => <div className="sgds:flex sgds:items-center sgds:gap-text-2-xs" key={band.id}><span className={`map-legend-swatch map-colour-scale-${band.id}`} aria-hidden="true" /><span className="sgds:text-label-sm sgds:font-regular sgds:leading-2-xs sgds:tracking-normal sgds:text-body-default">{band.label}</span></div>)}
           </aside>
 
-          {selected && <aside className="sgds:pointer-events-auto sgds:absolute sgds:right-4 sgds:bottom-4 sgds:w-[calc(100%-2rem)] sgds:md:top-48 sgds:md:bottom-auto sgds:md:w-80 sgds:max-h-[calc(100%-14rem)] sgds:overflow-y-auto sgds:bg-surface-raised sgds:border sgds:border-default sgds:rounded-lg sgds:shadow-lg sgds:p-component-xs" aria-live="polite">
+          {selected && <aside className="sgds:pointer-events-auto sgds:absolute sgds:right-4 sgds:bottom-4 sgds:w-[calc(100%-2rem)] sgds:md:top-40 sgds:md:bottom-auto sgds:md:h-[70vh] sgds:md:max-h-[70vh] sgds:md:w-80 sgds:overflow-y-auto sgds:bg-surface-raised sgds:border sgds:border-default sgds:rounded-lg sgds:shadow-lg sgds:p-component-xs" aria-live="polite">
             <div className="sgds:flex sgds:items-start sgds:justify-between sgds:gap-component-sm">
               <div className="sgds:flex sgds:flex-col sgds:gap-text-xs">
                 <div className="sgds:text-overline-md sgds:font-semibold sgds:leading-2-xs sgds:tracking-wide sgds:uppercase sgds:text-body-subtle">Recent transactions</div>
