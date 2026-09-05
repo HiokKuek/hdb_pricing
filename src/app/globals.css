@@ -17,6 +17,10 @@
   z-index: 1;
 }
 
+.map-ui-overlay {
+  z-index: 1100;
+}
+
 .place-search-menu {
   background: var(--sgds-surface-raised);
   border: 1px solid var(--sgds-border-color-default);
