@@ -31,6 +31,14 @@ function compactAddress(address: string) {
   return address.length > 54 ? `${address.slice(0, 51)}…` : address;
 }
 
+function formatStoreyRange(storeyRange: string) {
+  return `LVL ${storeyRange.replace(" TO ", " to ")}`;
+}
+
+function formatFlatType(flatType: string) {
+  return flatType.replace(/ ROOM$/, " RM");
+}
+
 function MapSelectOption({ value, children }: { value: string; children: ReactNode }) {
   // SGDS upgrades this custom element before React hydrates and adds ARIA
   // attributes. Its value must be an HTML attribute at first paint.
@@ -288,8 +296,8 @@ export default function PriceMap({ initialMarkers, flatTypes, initialFilters, in
           <div className="map-controls sgds:pointer-events-auto sgds:absolute sgds:left-1/2 sgds:w-[calc(100%-2rem)] sgds:lg:w-[calc(100%-3rem)] sgds:-translate-x-1/2">
             <div className="sgds:hidden sgds:lg:grid sgds:lg:grid-cols-[13rem_minmax(14rem,1fr)_repeat(3,9rem)] sgds:2-xl:grid-cols-[18rem_minmax(14rem,1fr)_repeat(3,9rem)] sgds:lg:items-end sgds:lg:gap-component-xs">
               <header>
-                <h1 className="sgds:text-heading-sm sgds:font-semibold sgds:leading-sm sgds:tracking-tight sgds:text-heading-default">HDB Resale Prices</h1>
-                <p className="sgds:mt-text-2-xs sgds:text-body-sm sgds:font-regular sgds:leading-2-xs sgds:tracking-normal sgds:text-body-subtle">Distribution of HDB resale prices across Singapore</p>
+                <h1 className="sgds:text-heading-sm sgds:font-semibold sgds:leading-sm sgds:tracking-tight sgds:text-heading-default">HDB resale price map</h1>
+                <p className="sgds:mt-text-2-xs sgds:text-body-sm sgds:font-regular sgds:leading-2-xs sgds:tracking-normal sgds:text-body-subtle">Explore recent HDB resale transactions by town, block, and flat type.</p>
               </header>
               <div className="sgds:relative sgds:lg:self-center">
                 <SgdsInput
@@ -341,8 +349,8 @@ export default function PriceMap({ initialMarkers, flatTypes, initialFilters, in
             </div>
             <div className="sgds:pt-layout-xs sgds:lg:pt-0 sgds:lg:hidden">
               <header>
-                <h1 className="sgds:text-heading-sm sgds:font-semibold sgds:leading-sm sgds:tracking-tight sgds:text-heading-default">HDB Resale Prices</h1>
-                <p className="sgds:mt-text-2-xs sgds:relative sgds:top-1 sgds:text-body-sm sgds:font-regular sgds:leading-2-xs sgds:tracking-normal sgds:text-body-subtle">Distribution of HDB resale prices across Singapore</p>
+                <h1 className="sgds:text-heading-sm sgds:font-semibold sgds:leading-sm sgds:tracking-tight sgds:text-heading-default">HDB resale price map</h1>
+                <p className="sgds:mt-text-2-xs sgds:relative sgds:top-1 sgds:text-body-sm sgds:font-regular sgds:leading-2-xs sgds:tracking-normal sgds:text-body-subtle">Explore recent HDB resale transactions by town, block, and flat type.</p>
               </header>
             </div>
           </div>
@@ -420,21 +428,21 @@ export default function PriceMap({ initialMarkers, flatTypes, initialFilters, in
                   <div className="sgds:flex sgds:flex-col sgds:gap-text-2-xs sgds:border-l-4 sgds:border-primary-default sgds:pl-3"><div className="sgds:text-label-sm sgds:leading-2-xs sgds:text-body-subtle">Sales shown</div><div className="sgds:text-subtitle-sm sgds:font-semibold sgds:leading-2-xs sgds:text-heading-default">{transactions?.length ?? "…"} recent</div></div>
                 </div>
                 <div className="sgds:flex sgds:justify-between sgds:mt-component-md sgds:mb-component-xs sgds:text-overline-md sgds:font-semibold sgds:leading-2-xs sgds:tracking-wide sgds:uppercase sgds:text-body-subtle"><span>Recent sales</span><span>Price</span></div>
-                <div>{transactions ? transactions.map((sale) => <article className="sgds:flex sgds:justify-between sgds:gap-component-xs sgds:py-component-xs sgds:border-t sgds:border-default" key={`${sale.month}-${sale.resalePrice}`}><div className="sgds:min-w-0"><div className="sgds:text-label-md sgds:font-semibold sgds:leading-xs sgds:text-heading-default">{sale.month}</div><div className="sgds:text-caption-md sgds:leading-2-xs sgds:text-body-subtle">{sale.flatType} · {Math.round(toSqft(sale.floorAreaSqm)).toLocaleString()} sq ft · {sale.storeyRange}</div></div><div className="sgds:shrink-0 sgds:text-right"><div className="sgds:text-label-md sgds:font-semibold sgds:leading-xs sgds:text-heading-default">{currency.format(sale.resalePrice)}</div><div className="sgds:text-caption-md sgds:leading-2-xs sgds:text-body-subtle">${Math.round(toPsf(sale.resalePrice / sale.floorAreaSqm)).toLocaleString()}/sq ft</div></div></article>) : <div className="sgds:flex sgds:items-center sgds:gap-component-xs sgds:py-component-xs"><SgdsSpinner size="sm" label="Loading transactions" /><span className="sgds:text-body-sm sgds:leading-2-xs sgds:text-body-subtle">Loading transactions…</span></div>}</div>
+                <div>{transactions ? transactions.map((sale) => <article className="sgds:flex sgds:justify-between sgds:gap-component-xs sgds:py-component-xs sgds:border-t sgds:border-default" key={`${sale.month}-${sale.resalePrice}`}><div className="sgds:min-w-0"><div className="sgds:text-label-md sgds:font-semibold sgds:leading-xs sgds:text-heading-default">{sale.month}</div><div className="sgds:text-caption-md sgds:leading-2-xs sgds:text-body-subtle">{formatFlatType(sale.flatType)} · {Math.round(toSqft(sale.floorAreaSqm)).toLocaleString()} sqft · {formatStoreyRange(sale.storeyRange)}</div></div><div className="sgds:shrink-0 sgds:text-right"><div className="sgds:text-label-md sgds:font-semibold sgds:leading-xs sgds:text-heading-default">{currency.format(sale.resalePrice)}</div><div className="sgds:text-caption-md sgds:leading-2-xs sgds:text-body-subtle">${Math.round(toPsf(sale.resalePrice / sale.floorAreaSqm)).toLocaleString()}/sq ft</div></div></article>) : <div className="sgds:flex sgds:items-center sgds:gap-component-xs sgds:py-component-xs"><SgdsSpinner size="sm" label="Loading transactions" /><span className="sgds:text-body-sm sgds:leading-2-xs sgds:text-body-subtle">Loading transactions…</span></div>}</div>
                 <div className="sgds:mt-component-md"><SgdsLink size="sm" tone="neutral"><a href="https://data.gov.sg/collections/189/view" target="_blank" rel="noreferrer">Data from Housing Development Board</a></SgdsLink></div>
                 </div>
               </div>
             </div>}
-            <aside className="sgds:hidden sgds:pointer-events-auto sgds:absolute sgds:right-4 sgds:bottom-4 sgds:w-[calc(100%-2rem)] sgds:lg:block sgds:lg:top-40 sgds:lg:bottom-auto sgds:lg:h-[70vh] sgds:lg:max-h-[70vh] sgds:lg:w-80 sgds:overflow-y-auto sgds:bg-surface-raised sgds:border sgds:border-default sgds:rounded-lg sgds:shadow-lg sgds:p-component-xs" aria-live="polite">
+            <aside className="sgds:hidden sgds:pointer-events-auto sgds:absolute sgds:right-4 sgds:bottom-4 sgds:w-[calc(100%-2rem)] sgds:lg:block sgds:lg:top-40 sgds:lg:bottom-auto sgds:lg:max-h-[70vh] sgds:lg:w-80 sgds:overflow-y-auto sgds:bg-surface-raised sgds:border sgds:border-default sgds:rounded-lg sgds:shadow-lg sgds:p-component-xs" aria-live="polite">
             <div className="sgds:flex sgds:items-start sgds:justify-between sgds:gap-component-sm">
               <div className="sgds:flex sgds:flex-col sgds:gap-text-xs">
                 <div className="sgds:text-overline-md sgds:font-semibold sgds:leading-2-xs sgds:tracking-wide sgds:uppercase sgds:text-body-subtle">Recent transactions</div>
                 <h1 className="sgds:text-heading-lg sgds:font-bold sgds:leading-lg sgds:tracking-tight sgds:text-heading-default">Block {selected.block}</h1>
-                <p className="sgds:text-body-sm sgds:leading-2-xs sgds:tracking-normal sgds:text-body-subtle">{selected.streetName}<br />{selected.town}</p>
+                <p className="sgds:mb-component-xs sgds:text-body-sm sgds:leading-2-xs sgds:tracking-normal sgds:text-body-subtle">{selected.streetName}, {selected.town}</p>
               </div>
               <SgdsIconButton name="close" variant="ghost" tone="neutral" ariaLabel="Close recent transactions" onClick={() => setSelected(null)} />
             </div>
-            <div className="sgds:flex sgds:flex-col sgds:gap-text-xs sgds:my-component-md sgds:py-component-xs sgds:border-y sgds:border-default">
+            <div className="sgds:flex sgds:flex-col sgds:gap-text-xs sgds:mb-component-sm">
               <div className="sgds:text-overline-md sgds:font-semibold sgds:leading-2-xs sgds:tracking-wide sgds:uppercase sgds:text-body-subtle">Median price per sq ft</div>
               <div className="sgds:text-display-sm sgds:font-bold sgds:leading-xl sgds:tracking-tighter sgds:text-heading-default">${Math.round(toPsf(selected.medianPsm)).toLocaleString()}</div>
               <div className="sgds:text-caption-md sgds:leading-2-xs sgds:tracking-normal sgds:text-body-subtle">From {selected.transactionCount} matching sales</div>
@@ -444,7 +452,7 @@ export default function PriceMap({ initialMarkers, flatTypes, initialFilters, in
               <div className="sgds:flex sgds:flex-col sgds:gap-text-2-xs sgds:border-l-4 sgds:border-primary-default sgds:pl-3"><div className="sgds:text-label-sm sgds:leading-2-xs sgds:text-body-subtle">Sales shown</div><div className="sgds:text-subtitle-sm sgds:font-semibold sgds:leading-2-xs sgds:text-heading-default">{transactions?.length ?? "…"} recent</div></div>
             </div>
             <div className="sgds:flex sgds:justify-between sgds:mt-component-md sgds:mb-component-xs sgds:text-overline-md sgds:font-semibold sgds:leading-2-xs sgds:tracking-wide sgds:uppercase sgds:text-body-subtle"><span>Recent sales</span><span>Price</span></div>
-            <div>{transactions ? transactions.map((sale) => <article className="sgds:flex sgds:justify-between sgds:gap-component-xs sgds:py-component-xs sgds:border-t sgds:border-default" key={`${sale.month}-${sale.resalePrice}`}><div><div className="sgds:text-label-md sgds:font-semibold sgds:leading-xs sgds:text-heading-default">{sale.month}</div><div className="sgds:text-caption-md sgds:leading-2-xs sgds:text-body-subtle">{sale.flatType} · {Math.round(toSqft(sale.floorAreaSqm)).toLocaleString()} sq ft · {sale.storeyRange}</div></div><div className="sgds:text-right"><div className="sgds:text-label-md sgds:font-semibold sgds:leading-xs sgds:text-heading-default">{currency.format(sale.resalePrice)}</div><div className="sgds:text-caption-md sgds:leading-2-xs sgds:text-body-subtle">${Math.round(toPsf(sale.resalePrice / sale.floorAreaSqm)).toLocaleString()}/sq ft</div></div></article>) : <div className="sgds:flex sgds:items-center sgds:gap-component-xs sgds:py-component-xs"><SgdsSpinner size="sm" label="Loading transactions" /><span className="sgds:text-body-sm sgds:leading-2-xs sgds:text-body-subtle">Loading transactions…</span></div>}</div>
+            <div>{transactions ? transactions.map((sale) => <article className="sgds:flex sgds:justify-between sgds:gap-component-xs sgds:py-component-xs sgds:border-t sgds:border-default" key={`${sale.month}-${sale.resalePrice}`}><div><div className="sgds:text-label-md sgds:font-semibold sgds:leading-xs sgds:text-heading-default">{sale.month}</div><div className="sgds:text-caption-md sgds:leading-2-xs sgds:text-body-subtle">{formatFlatType(sale.flatType)} · {Math.round(toSqft(sale.floorAreaSqm)).toLocaleString()} sqft · {formatStoreyRange(sale.storeyRange)}</div></div><div className="sgds:text-right"><div className="sgds:text-label-md sgds:font-semibold sgds:leading-xs sgds:text-heading-default">{currency.format(sale.resalePrice)}</div><div className="sgds:text-caption-md sgds:leading-2-xs sgds:text-body-subtle">${Math.round(toPsf(sale.resalePrice / sale.floorAreaSqm)).toLocaleString()}/sq ft</div></div></article>) : <div className="sgds:flex sgds:items-center sgds:gap-component-xs sgds:py-component-xs"><SgdsSpinner size="sm" label="Loading transactions" /><span className="sgds:text-body-sm sgds:leading-2-xs sgds:text-body-subtle">Loading transactions…</span></div>}</div>
             <div className="sgds:mt-component-md"><SgdsLink size="sm" tone="neutral"><a href="https://data.gov.sg/collections/189/view" target="_blank" rel="noreferrer">Data from Housing Development Board</a></SgdsLink></div>
             </aside>
           </>}
