@@ -300,12 +300,12 @@
   top: max(1rem, env(safe-area-inset-top));
 }
 
-.map-legend {
+.map-legend-group {
   bottom: max(2rem, calc(env(safe-area-inset-bottom) + 1rem));
 }
 
 @media (min-width: 1024px) {
-  .map-legend {
+  .map-legend-group {
     bottom: max(1rem, env(safe-area-inset-bottom));
   }
 }

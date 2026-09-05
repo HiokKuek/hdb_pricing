@@ -20,6 +20,7 @@ import { MAP_COLOUR_SCALE } from "@/lib/map-colour-scale.generated";
 import { toPsf, toSqft } from "@/lib/pricing";
 
 const MapCanvas = dynamic(() => import("./MapCanvas"), { ssr: false, loading: () => <div className="map-loading">Drawing the field map…</div> });
+const AboutMapModal = dynamic(() => import("./AboutMapModal"), { ssr: false });
 
 const currency = new Intl.NumberFormat("en-SG", { style: "currency", currency: "SGD", maximumFractionDigits: 0 });
 type Place = { address: string; latitude: number; longitude: number };
@@ -58,6 +59,7 @@ export default function PriceMap({ initialMarkers, flatTypes, initialFilters, in
   const [isCompactViewport, setIsCompactViewport] = useState(false);
   const [showEmptyViewToast, setShowEmptyViewToast] = useState(false);
   const [detailSheetOpen, setDetailSheetOpen] = useState(false);
+  const [aboutMapOpen, setAboutMapOpen] = useState(false);
   const detailSheetRef = useRef<HTMLDivElement>(null);
   const detailSheetDragRef = useRef<{ startY: number } | null>(null);
   const selectedPlaceQueryRef = useRef<string | null>(null);
@@ -244,6 +246,11 @@ export default function PriceMap({ initialMarkers, flatTypes, initialFilters, in
     closeMobileMenu();
   }
 
+  function openAboutMap() {
+    if (mobileMenuOpen) closeMobileMenu();
+    setAboutMapOpen(true);
+  }
+
   function closeDetailSheet() {
     detailSheetRef.current?.style.setProperty("--map-detail-sheet-offset", "0px");
     detailSheetRef.current?.classList.remove("map-detail-sheet--dragging");
@@ -374,15 +381,23 @@ export default function PriceMap({ initialMarkers, flatTypes, initialFilters, in
               <label className="mobile-filter-label">Lease remaining<select className="mobile-filter-select" name="mobile-lease" value={draftLeaseBand} onChange={(event) => setDraftLeaseBand(event.target.value as MapFilters["leaseBand"])}><option value="any">Any lease</option><option value="80-plus">80+ years</option><option value="70-79">70–79 years</option><option value="60-69">60–69 years</option><option value="under-60">Under 60 years</option></select></label>
               </div>
               <div className="sgds:mt-component-lg"><SgdsButton variant="outline" tone="neutral" ariaLabel="Apply filters" onClick={applyMobileFilters}>Apply filters</SgdsButton></div>
+              <div className="sgds:mt-component-md sgds:pt-component-md sgds:border-t sgds:border-default">
+                <SgdsButton variant="ghost" tone="neutral" onClick={openAboutMap}>About this map</SgdsButton>
+              </div>
             </aside>
           </div>}
           {showMapUpdate && <div className="sgds:pointer-events-none sgds:absolute sgds:z-800 sgds:right-3 sgds:bottom-40 sgds:lg:right-4 sgds:lg:bottom-4 sgds:flex sgds:items-center sgds:gap-text-2-xs sgds:bg-surface-raised sgds:border sgds:border-default sgds:rounded-md sgds:shadow-lg sgds:px-3 sgds:py-2" role="status">
             <SgdsSpinner size="xs" tone="neutral" label="Updating map" orientation="horizontal" />
           </div>}
-          <aside className="map-legend sgds:pointer-events-auto sgds:absolute sgds:left-3 sgds:right-3 sgds:grid sgds:grid-cols-2 sgds:gap-x-3 sgds:gap-y-2 sgds:bg-surface-raised sgds:border sgds:border-default sgds:rounded-lg sgds:shadow-lg sgds:p-3 sgds:lg:right-auto sgds:lg:flex sgds:lg:flex-wrap sgds:lg:items-center sgds:lg:gap-component-xs sgds:lg:p-component-xs" aria-label="Price per square foot legend">
-            <div className="sgds:col-span-2 sgds:shrink-0 sgds:text-overline-md sgds:font-semibold sgds:leading-2-xs sgds:tracking-wide sgds:uppercase sgds:text-body-subtle sgds:lg:col-auto">Price per sq ft</div>
-            {MAP_COLOUR_SCALE.map((band) => <div className="sgds:flex sgds:min-w-0 sgds:items-center sgds:gap-text-2-xs" key={band.id}><span className={`map-legend-swatch map-colour-scale-${band.id}`} aria-hidden="true" /><span className="sgds:text-label-sm sgds:font-regular sgds:leading-2-xs sgds:tracking-normal sgds:text-body-default">{band.label}</span></div>)}
-          </aside>
+          <div className="map-legend-group sgds:pointer-events-auto sgds:absolute sgds:left-3 sgds:right-3 sgds:lg:right-auto sgds:lg:flex sgds:lg:items-center sgds:lg:gap-component-xs">
+            <aside className="sgds:grid sgds:grid-cols-2 sgds:gap-x-3 sgds:gap-y-2 sgds:bg-surface-raised sgds:border sgds:border-default sgds:rounded-lg sgds:shadow-lg sgds:p-3 sgds:lg:flex sgds:lg:flex-wrap sgds:lg:items-center sgds:lg:gap-component-xs sgds:lg:p-component-xs" aria-label="Price per square foot legend">
+              <div className="sgds:col-span-2 sgds:shrink-0 sgds:text-overline-md sgds:font-semibold sgds:leading-2-xs sgds:tracking-wide sgds:uppercase sgds:text-body-subtle sgds:lg:col-auto">Price per sq ft</div>
+              {MAP_COLOUR_SCALE.map((band) => <div className="sgds:flex sgds:min-w-0 sgds:items-center sgds:gap-text-2-xs" key={band.id}><span className={`map-legend-swatch map-colour-scale-${band.id}`} aria-hidden="true" /><span className="sgds:text-label-sm sgds:font-regular sgds:leading-2-xs sgds:tracking-normal sgds:text-body-default">{band.label}</span></div>)}
+            </aside>
+            <div className="sgds:hidden sgds:lg:flex sgds:bg-surface-raised sgds:border sgds:border-default sgds:rounded-lg sgds:shadow-lg">
+              <SgdsIconButton name="info-circle" variant="ghost" tone="neutral" ariaLabel="About this map" onClick={openAboutMap} />
+            </div>
+          </div>
 
           {selected && <>
             {isCompactViewport && <div className={`map-detail-sheet-layer sgds:pointer-events-auto${detailSheetOpen ? " map-detail-sheet-layer--open" : ""}`}>
@@ -432,6 +447,7 @@ export default function PriceMap({ initialMarkers, flatTypes, initialFilters, in
             </aside>
           </>}
         </section>
+        <AboutMapModal isOpen={aboutMapOpen} onClose={() => setAboutMapOpen(false)} />
         <SgdsToastContainer className="map-empty-view-toast" position={isCompactViewport ? "bottom-center" : "bottom-end"}>
           <SgdsToast show={showEmptyViewToast} variant="info" title="No matching resale summaries" dismissible autohide delay={5000} onSgdsAfterHide={() => setShowEmptyViewToast(false)}>
             <SgdsIcon slot="icon" name="info-circle-fill" size="md" />
