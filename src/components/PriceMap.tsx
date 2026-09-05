@@ -361,7 +361,7 @@ export default function PriceMap({ initialMarkers, flatTypes, initialFilters, in
                   <h3 id="mobile-place-search-heading" className="sgds:text-subtitle-sm sgds:font-semibold sgds:leading-xs sgds:tracking-normal sgds:text-heading-default">Search</h3>
                   <div className="sgds:relative sgds:mt-text-xs">
                     <SgdsInput type="text" aria-label="Search for a place" name="place-search-mobile" value={query} onSgdsInput={(event) => setQuery((event.target as ValueElement).value)} onKeyDown={submitPlaceSearch} placeholder="Search block, street or town" />
-                    {placeSearchState === "loading" && <div className="place-search-menu" aria-live="polite"><div className="place-search-status"><SgdsSpinner size="xs" label="Finding places" orientation="horizontal" />Finding places…</div></div>}
+                    {placeSearchState === "loading" && <div className="place-search-menu" aria-live="polite"><div className="place-search-status"><SgdsSpinner size="xs" label="Finding places" orientation="horizontal" /></div></div>}
                     {placeSearchState === "complete" && places.length > 0 && <div className="place-search-menu" role="listbox" aria-label="Place search results">
                       {places.map((place) => <button className="place-search-result" key={`${place.latitude}-${place.longitude}`} type="button" role="option" aria-label={place.address} onClick={() => selectPlace(place)}>{compactAddress(place.address)}</button>)}
                     </div>}
