@@ -326,17 +326,6 @@ export default function PriceMap({ initialMarkers, flatTypes, initialFilters, in
                 <h1 className="sgds:text-heading-sm sgds:font-semibold sgds:leading-sm sgds:tracking-tight sgds:text-heading-default">HDB Resale Prices</h1>
                 <p className="sgds:mt-text-2-xs sgds:relative sgds:top-1 sgds:text-body-sm sgds:font-regular sgds:leading-2-xs sgds:tracking-normal sgds:text-body-subtle">Distribution of HDB resale prices across Singapore</p>
               </header>
-              <div className="sgds:flex sgds:items-end sgds:gap-component-xs sgds:mt-text-sm">
-                <div className="sgds:relative sgds:flex-1">
-                  <SgdsInput type="text" aria-label="Search for a place" name="place-search-mobile" value={query} onSgdsInput={(event) => setQuery((event.target as ValueElement).value)} onKeyDown={submitPlaceSearch} placeholder="Search block, street or town" />
-                  {placeSearchState === "loading" && <div className="place-search-menu" aria-live="polite"><div className="place-search-status"><SgdsSpinner size="xs" label="Finding places" orientation="horizontal" />Finding places…</div></div>}
-                  {placeSearchState === "complete" && places.length > 0 && <div className="place-search-menu" role="listbox" aria-label="Place search results">
-                    {places.map((place) => <button className="place-search-result" key={`${place.latitude}-${place.longitude}`} type="button" role="option" aria-label={place.address} onClick={() => selectPlace(place)}>{compactAddress(place.address)}</button>)}
-                  </div>}
-                  {placeSearchState === "complete" && places.length === 0 && <div className="place-search-menu" aria-live="polite"><div className="place-search-status">No places found</div></div>}
-                </div>
-                <SgdsButton variant="primary" ariaLabel="Show the first matching HDB location" disabled={places.length === 0} onClick={selectFirstPlace}>Search</SgdsButton>
-              </div>
             </div>
           </div>
           <button
@@ -354,9 +343,20 @@ export default function PriceMap({ initialMarkers, flatTypes, initialFilters, in
             <aside className="map-options-drawer" role="dialog" aria-modal="true" aria-label="Map search and filters" onTransitionEnd={(event) => { if (event.target === event.currentTarget && !mobileMenuOpen) unmountMobileDrawer(); }}>
               <header className="map-options-drawer-header">
                 <h2 className="sgds:text-heading-lg sgds:font-bold sgds:leading-lg sgds:tracking-tight sgds:text-heading-default">Map options</h2>
-                <p className="sgds:mt-text-md sgds:text-body-lg sgds:leading-sm sgds:text-body-subtle">Refine the resale prices shown on the map.</p>
+                <p className="sgds:mt-text-md sgds:text-body-lg sgds:leading-sm sgds:text-body-subtle">Search for a place or refine the resale prices shown on the map.</p>
               </header>
               <div className="sgds:flex sgds:flex-col sgds:gap-component-md sgds:mt-component-lg">
+              <div className="sgds:flex sgds:items-end sgds:gap-component-xs">
+                <div className="sgds:relative sgds:flex-1">
+                  <SgdsInput type="text" aria-label="Search for a place" name="place-search-mobile" value={query} onSgdsInput={(event) => setQuery((event.target as ValueElement).value)} onKeyDown={submitPlaceSearch} placeholder="Search block, street or town" />
+                  {placeSearchState === "loading" && <div className="place-search-menu" aria-live="polite"><div className="place-search-status"><SgdsSpinner size="xs" label="Finding places" orientation="horizontal" />Finding places…</div></div>}
+                  {placeSearchState === "complete" && places.length > 0 && <div className="place-search-menu" role="listbox" aria-label="Place search results">
+                    {places.map((place) => <button className="place-search-result" key={`${place.latitude}-${place.longitude}`} type="button" role="option" aria-label={place.address} onClick={() => selectPlace(place)}>{compactAddress(place.address)}</button>)}
+                  </div>}
+                  {placeSearchState === "complete" && places.length === 0 && <div className="place-search-menu" aria-live="polite"><div className="place-search-status">No places found</div></div>}
+                </div>
+                <SgdsButton variant="outline" tone="neutral" ariaLabel="Show the first matching HDB location" disabled={places.length === 0} onClick={selectFirstPlace}>Search</SgdsButton>
+              </div>
               <label className="mobile-filter-label">Flat type<select className="mobile-filter-select" name="mobile-flat-type" value={draftFlatType} onChange={(event) => setDraftFlatType(event.target.value)}><option value="all">All flat types</option>{flatTypes.map((type) => <option key={type} value={type}>{type}</option>)}</select></label>
               <label className="mobile-filter-label">Price<select className="mobile-filter-select" name="mobile-price" value={draftBudget} onChange={(event) => setDraftBudget(event.target.value as MapFilters["priceBand"])}><option value="any">Any price</option><option value="under-650">Under $650k</option><option value="650-850">$650k–850k</option><option value="850-plus">$850k+</option></select></label>
               <label className="mobile-filter-label">Lease remaining<select className="mobile-filter-select" name="mobile-lease" value={draftLeaseBand} onChange={(event) => setDraftLeaseBand(event.target.value as MapFilters["leaseBand"])}><option value="any">Any lease</option><option value="80-plus">80+ years</option><option value="70-79">70–79 years</option><option value="60-69">60–69 years</option><option value="under-60">Under 60 years</option></select></label>
