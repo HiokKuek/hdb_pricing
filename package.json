@@ -1,0 +1,37 @@
+{
+  "name": "hdb-field-map",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "ingest": "tsx --env-file=.env.local scripts/ingest.ts",
+    "verify:months": "tsx scripts/verify-month-normalization.ts",
+    "verify:retry": "tsx scripts/verify-retry.ts",
+    "verify:geocoding": "tsx scripts/verify-geocoding-query.ts",
+    "verify:square-feet": "tsx scripts/verify-square-feet.ts"
+  },
+  "dependencies": {
+    "@govtechsg/sgds-web-component": "^3.26.1",
+    "@supabase/ssr": "^0.12.6",
+    "@supabase/supabase-js": "^2.49.4",
+    "@types/leaflet": "^1.9.16",
+    "leaflet": "^1.9.4",
+    "next": "^15.3.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-leaflet": "^5.0.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^22.15.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "supabase": "^2.116.0",
+    "tailwindcss": "^4.3.3",
+    "tsx": "^4.19.0",
+    "typescript": "^5.8.0"
+  }
+}

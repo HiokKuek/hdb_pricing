@@ -1,0 +1,22 @@
+@import "tailwindcss/theme.css";
+@import "tailwindcss/utilities.css";
+@import "@govtechsg/sgds-web-component/themes/day.css";
+@import "@govtechsg/sgds-web-component/css/sgds.css";
+@import "@govtechsg/sgds-web-component/css/utility.css";
+
+.map-legend-swatch {
+  border-radius: 9999px;
+  display: inline-block;
+  flex: 0 0 auto;
+  height: 0.625rem;
+  width: 0.625rem;
+}
+
+.map-legend-swatch-under-560 { background: #74c8ba; }
+.map-legend-swatch-560-650 { background: #d9bb61; }
+.map-legend-swatch-650-745 { background: #e88858; }
+.map-legend-swatch-745-plus { background: #bc4a45; }
+
+.map-search-action {
+  z-index: 1;
+}
