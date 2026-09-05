@@ -167,13 +167,13 @@ export default function PriceMap({ initialMarkers, flatTypes, initialFilters, in
                 )}
               </div>
               <div className="sgds:lg:self-center sgds:lg:-translate-y-4">
-                <SgdsSelect ref={flatTypeRef} label="Flat type" name="flat-type" value={flatType} placeholder="All flat types" onSgdsSelect={(event) => { setSelected(null); setTransactions(null); setFlatType((event.target as ValueElement).value); }}>
+                <SgdsSelect ref={flatTypeRef} label="Flat type" name="flat-type" value={flatType} placeholder="All flat types" onSgdsChange={(event) => { setSelected(null); setTransactions(null); setFlatType((event.target as ValueElement).value); }}>
                   <SgdsSelectOption value="all">All flat types</SgdsSelectOption>
                   {flatTypes.map((type) => <SgdsSelectOption key={type} value={type}>{type}</SgdsSelectOption>)}
                 </SgdsSelect>
               </div>
               <div className="sgds:lg:self-center sgds:lg:-translate-y-4">
-                <SgdsSelect ref={priceRef} label="Price" name="price" value={budget} placeholder="Any price" onSgdsSelect={(event) => setBudget((event.target as ValueElement).value as MapFilters["priceBand"])}>
+                <SgdsSelect ref={priceRef} label="Price" name="price" value={budget} placeholder="Any price" onSgdsChange={(event) => setBudget((event.target as ValueElement).value as MapFilters["priceBand"])}>
                   <SgdsSelectOption value="any">Any price</SgdsSelectOption>
                   <SgdsSelectOption value="under-650">Under $650k</SgdsSelectOption>
                   <SgdsSelectOption value="650-850">$650k–850k</SgdsSelectOption>
@@ -181,7 +181,7 @@ export default function PriceMap({ initialMarkers, flatTypes, initialFilters, in
                 </SgdsSelect>
               </div>
               <div className="sgds:lg:self-center sgds:lg:-translate-y-4">
-                <SgdsSelect ref={leaseRef} label="Lease remaining" name="lease" value={leaseBand} placeholder="Any lease" onSgdsSelect={(event) => setLeaseBand((event.target as ValueElement).value as MapFilters["leaseBand"])}>
+                <SgdsSelect ref={leaseRef} label="Lease remaining" name="lease" value={leaseBand} placeholder="Any lease" onSgdsChange={(event) => setLeaseBand((event.target as ValueElement).value as MapFilters["leaseBand"])}>
                   <SgdsSelectOption value="any">Any lease</SgdsSelectOption>
                   <SgdsSelectOption value="80-plus">80+ years</SgdsSelectOption>
                   <SgdsSelectOption value="70-79">70–79 years</SgdsSelectOption>
@@ -213,17 +213,17 @@ export default function PriceMap({ initialMarkers, flatTypes, initialFilters, in
                 <h2 slot="title">Filters</h2>
                 <p slot="description">Refine the resale prices shown on the map.</p>
                 <div className="sgds:flex sgds:flex-col sgds:gap-component-md sgds:pt-component-sm">
-                  <SgdsSelect label="Flat type" name="mobile-flat-type" value={flatType} placeholder="All flat types" onSgdsSelect={(event) => { setSelected(null); setTransactions(null); setFlatType((event.target as ValueElement).value); }}>
+                  <SgdsSelect label="Flat type" name="mobile-flat-type" value={flatType} placeholder="All flat types" onSgdsChange={(event) => { setSelected(null); setTransactions(null); setFlatType((event.target as ValueElement).value); }}>
                     <SgdsSelectOption value="all">All flat types</SgdsSelectOption>
                     {flatTypes.map((type) => <SgdsSelectOption key={type} value={type}>{type}</SgdsSelectOption>)}
                   </SgdsSelect>
-                  <SgdsSelect label="Price" name="mobile-price" value={budget} placeholder="Any price" onSgdsSelect={(event) => setBudget((event.target as ValueElement).value as MapFilters["priceBand"])}>
+                  <SgdsSelect label="Price" name="mobile-price" value={budget} placeholder="Any price" onSgdsChange={(event) => setBudget((event.target as ValueElement).value as MapFilters["priceBand"])}>
                     <SgdsSelectOption value="any">Any price</SgdsSelectOption>
                     <SgdsSelectOption value="under-650">Under $650k</SgdsSelectOption>
                     <SgdsSelectOption value="650-850">$650k–850k</SgdsSelectOption>
                     <SgdsSelectOption value="850-plus">$850k+</SgdsSelectOption>
                   </SgdsSelect>
-                  <SgdsSelect label="Lease remaining" name="mobile-lease" value={leaseBand} placeholder="Any lease" onSgdsSelect={(event) => setLeaseBand((event.target as ValueElement).value as MapFilters["leaseBand"])}>
+                  <SgdsSelect label="Lease remaining" name="mobile-lease" value={leaseBand} placeholder="Any lease" onSgdsChange={(event) => setLeaseBand((event.target as ValueElement).value as MapFilters["leaseBand"])}>
                     <SgdsSelectOption value="any">Any lease</SgdsSelectOption>
                     <SgdsSelectOption value="80-plus">80+ years</SgdsSelectOption>
                     <SgdsSelectOption value="70-79">70–79 years</SgdsSelectOption>
