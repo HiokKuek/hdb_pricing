@@ -16,3 +16,16 @@
 .map-search-action {
   z-index: 1;
 }
+
+.map-app-shell {
+  height: 100vh;
+  height: 100dvh;
+}
+
+.map-controls {
+  top: max(1rem, env(safe-area-inset-top));
+}
+
+.map-legend {
+  bottom: max(1rem, env(safe-area-inset-bottom));
+}
