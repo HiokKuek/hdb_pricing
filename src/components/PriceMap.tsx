@@ -4,6 +4,8 @@ import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   SgdsButton,
+  SgdsDrawer,
+  SgdsIcon,
   SgdsIconButton,
   SgdsInput,
   SgdsSelect,
@@ -22,6 +24,10 @@ type ValueElement = HTMLElement & { value: string };
 type SelectElement = HTMLElement & { value: string };
 type Viewport = { bounds: MapBounds; zoom: number };
 
+function compactAddress(address: string) {
+  return address.length > 54 ? `${address.slice(0, 51)}…` : address;
+}
+
 export default function PriceMap({ initialMarkers, flatTypes, initialFilters, initialBounds, initialZoom }: { initialMarkers: MapMarker[]; flatTypes: string[]; initialFilters: MapFilters; initialBounds: MapBounds; initialZoom: number }) {
   const [markers, setMarkers] = useState(initialMarkers);
   const [flatType, setFlatType] = useState(initialFilters.flatType);
@@ -34,6 +40,7 @@ export default function PriceMap({ initialMarkers, flatTypes, initialFilters, in
   const [query, setQuery] = useState("");
   const [places, setPlaces] = useState<Place[]>([]);
   const [focus, setFocus] = useState<[number, number] | null>(null);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const flatTypeRef = useRef<SelectElement>(null);
   const priceRef = useRef<SelectElement>(null);
   const leaseRef = useRef<SelectElement>(null);
@@ -116,13 +123,13 @@ export default function PriceMap({ initialMarkers, flatTypes, initialFilters, in
     <main className="sgds:relative sgds:h-screen sgds:overflow-hidden" aria-label="HDB resale price map">
         <div className="sgds:absolute sgds:inset-0"><MapCanvas markers={visibleMarkers} selectedId={selected?.id ?? null} focus={focus} onSelect={selectBlock} onViewportChange={updateViewport} initialZoom={initialZoom} /></div>
         <section className="sgds:absolute sgds:inset-0 sgds:z-800 sgds:pointer-events-none" aria-label="Map controls and resale evidence">
-          <header className="sgds:absolute sgds:top-4 sgds:left-1/2 sgds:w-[calc(100%-2rem)] sgds:lg:w-[64rem] sgds:-translate-x-1/2">
-            <h1 className="sgds:text-heading-sm sgds:font-semibold sgds:leading-sm sgds:tracking-tight sgds:text-heading-default">HDB Resale Prices</h1>
-            <p className="sgds:mt-text-2-xs sgds:text-body-sm sgds:font-regular sgds:leading-2-xs sgds:tracking-normal sgds:text-body-subtle">Distribution of HDB resale prices across Singapore</p>
-          </header>
-          <div className="sgds:pointer-events-auto sgds:absolute sgds:top-24 sgds:left-1/2 sgds:w-[calc(100%-2rem)] sgds:lg:w-[64rem] sgds:-translate-x-1/2">
-            <div className="sgds:grid sgds:grid-cols-1 sgds:gap-component-xs sgds:lg:grid-cols-[minmax(28rem,1fr)_repeat(3,10rem)] sgds:lg:items-end">
-              <div className="sgds:relative">
+          <div className="sgds:pointer-events-auto sgds:absolute sgds:top-4 sgds:left-1/2 sgds:w-[calc(100%-2rem)] sgds:lg:w-[calc(100%-3rem)] sgds:-translate-x-1/2">
+            <div className="sgds:hidden sgds:lg:grid sgds:lg:grid-cols-[13rem_minmax(14rem,1fr)_repeat(3,9rem)] sgds:2-xl:grid-cols-[18rem_minmax(14rem,1fr)_repeat(3,9rem)] sgds:lg:items-end sgds:lg:gap-component-xs">
+              <header>
+                <h1 className="sgds:text-heading-sm sgds:font-semibold sgds:leading-sm sgds:tracking-tight sgds:text-heading-default">HDB Resale Prices</h1>
+                <p className="sgds:mt-text-2-xs sgds:text-body-sm sgds:font-regular sgds:leading-2-xs sgds:tracking-normal sgds:text-body-subtle">Distribution of HDB resale prices across Singapore</p>
+              </header>
+              <div className="sgds:relative sgds:lg:self-center">
                 <SgdsInput
                   type="search"
                   aria-label="Search for a place"
@@ -142,29 +149,29 @@ export default function PriceMap({ initialMarkers, flatTypes, initialFilters, in
                 {places.length > 0 && (
                   <div className="sgds:absolute sgds:z-900 sgds:mt-1 sgds:w-full sgds:bg-surface-raised sgds:border sgds:border-default sgds:rounded-md sgds:shadow-lg sgds:p-1">
                     {places.map((place) => (
-                      <SgdsButton key={`${place.latitude}-${place.longitude}`} variant="ghost" onClick={() => selectPlace(place)}>
-                        {place.address}
+                      <SgdsButton key={`${place.latitude}-${place.longitude}`} variant="ghost" fullWidth ariaLabel={place.address} onClick={() => selectPlace(place)}>
+                        {compactAddress(place.address)}
                       </SgdsButton>
                     ))}
                   </div>
                 )}
               </div>
-              <div>
-                <SgdsSelect ref={flatTypeRef} label="Flat type" name="flat-type" value={flatType} onSgdsSelect={(event) => { setSelected(null); setTransactions(null); setFlatType((event.target as ValueElement).value); }}>
+              <div className="sgds:lg:self-center sgds:lg:-translate-y-4">
+                <SgdsSelect ref={flatTypeRef} label="Flat type" name="flat-type" value={flatType} placeholder="All flat types" onSgdsSelect={(event) => { setSelected(null); setTransactions(null); setFlatType((event.target as ValueElement).value); }}>
                   <SgdsSelectOption value="all">All flat types</SgdsSelectOption>
                   {flatTypes.map((type) => <SgdsSelectOption key={type} value={type}>{type}</SgdsSelectOption>)}
                 </SgdsSelect>
               </div>
-              <div>
-                <SgdsSelect ref={priceRef} label="Price" name="price" value={budget} onSgdsSelect={(event) => setBudget((event.target as ValueElement).value as MapFilters["priceBand"])}>
+              <div className="sgds:lg:self-center sgds:lg:-translate-y-4">
+                <SgdsSelect ref={priceRef} label="Price" name="price" value={budget} placeholder="Any price" onSgdsSelect={(event) => setBudget((event.target as ValueElement).value as MapFilters["priceBand"])}>
                   <SgdsSelectOption value="any">Any price</SgdsSelectOption>
                   <SgdsSelectOption value="under-650">Under $650k</SgdsSelectOption>
                   <SgdsSelectOption value="650-850">$650k–850k</SgdsSelectOption>
                   <SgdsSelectOption value="850-plus">$850k+</SgdsSelectOption>
                 </SgdsSelect>
               </div>
-              <div>
-                <SgdsSelect ref={leaseRef} label="Lease remaining" name="lease" value={leaseBand} onSgdsSelect={(event) => setLeaseBand((event.target as ValueElement).value as MapFilters["leaseBand"])}>
+              <div className="sgds:lg:self-center sgds:lg:-translate-y-4">
+                <SgdsSelect ref={leaseRef} label="Lease remaining" name="lease" value={leaseBand} placeholder="Any lease" onSgdsSelect={(event) => setLeaseBand((event.target as ValueElement).value as MapFilters["leaseBand"])}>
                   <SgdsSelectOption value="any">Any lease</SgdsSelectOption>
                   <SgdsSelectOption value="80-plus">80+ years</SgdsSelectOption>
                   <SgdsSelectOption value="70-79">70–79 years</SgdsSelectOption>
@@ -174,6 +181,49 @@ export default function PriceMap({ initialMarkers, flatTypes, initialFilters, in
               </div>
             </div>
             {loadingMarkers && <div className="sgds:flex sgds:justify-end sgds:mt-text-2-xs"><SgdsSpinner size="xs" tone="neutral" label="Updating map" orientation="horizontal" /></div>}
+            <div className="sgds:lg:hidden">
+              <header>
+                <h1 className="sgds:text-heading-sm sgds:font-semibold sgds:leading-sm sgds:tracking-tight sgds:text-heading-default">HDB Resale Prices</h1>
+                <p className="sgds:mt-text-2-xs sgds:text-body-sm sgds:font-regular sgds:leading-2-xs sgds:tracking-normal sgds:text-body-subtle">Distribution of HDB resale prices across Singapore</p>
+              </header>
+              <div className="sgds:flex sgds:items-end sgds:gap-component-xs sgds:mt-component-sm">
+                <div className="sgds:relative sgds:flex-1">
+                  <SgdsInput type="search" aria-label="Search for a place" name="place-search-mobile" value={query} onSgdsInput={(event) => setQuery((event.target as ValueElement).value)} placeholder="Search block, street or town" />
+                  <SgdsIconButton className="map-search-action sgds:absolute sgds:right-2 sgds:top-1/2 sgds:-translate-y-1/2" name="search" variant="ghost" ariaLabel="Show the first matching HDB location" disabled={places.length === 0} onClick={() => { if (places[0]) selectPlace(places[0]); }} />
+                  {places.length > 0 && <div className="sgds:absolute sgds:z-900 sgds:mt-1 sgds:w-full sgds:bg-surface-raised sgds:border sgds:border-default sgds:rounded-md sgds:shadow-lg sgds:p-1">
+                    {places.map((place) => <SgdsButton key={`${place.latitude}-${place.longitude}`} variant="ghost" fullWidth ariaLabel={place.address} onClick={() => selectPlace(place)}>{compactAddress(place.address)}</SgdsButton>)}
+                  </div>}
+                </div>
+                <SgdsButton variant="outline" tone="neutral" ariaLabel="Open filters" onClick={() => setMobileFiltersOpen(true)}>
+                  <SgdsIcon slot="leftIcon" name="sliders" size="sm" />
+                  Filters
+                </SgdsButton>
+              </div>
+              <SgdsDrawer open={mobileFiltersOpen} contained placement="bottom" size="lg" ariaLabel="Map filters" onSgdsRequestClose={() => setMobileFiltersOpen(false)}>
+                <h2 slot="title">Filters</h2>
+                <p slot="description">Refine the resale prices shown on the map.</p>
+                <div className="sgds:flex sgds:flex-col sgds:gap-component-md sgds:pt-component-sm">
+                  <SgdsSelect label="Flat type" name="mobile-flat-type" value={flatType} placeholder="All flat types" onSgdsSelect={(event) => { setSelected(null); setTransactions(null); setFlatType((event.target as ValueElement).value); }}>
+                    <SgdsSelectOption value="all">All flat types</SgdsSelectOption>
+                    {flatTypes.map((type) => <SgdsSelectOption key={type} value={type}>{type}</SgdsSelectOption>)}
+                  </SgdsSelect>
+                  <SgdsSelect label="Price" name="mobile-price" value={budget} placeholder="Any price" onSgdsSelect={(event) => setBudget((event.target as ValueElement).value as MapFilters["priceBand"])}>
+                    <SgdsSelectOption value="any">Any price</SgdsSelectOption>
+                    <SgdsSelectOption value="under-650">Under $650k</SgdsSelectOption>
+                    <SgdsSelectOption value="650-850">$650k–850k</SgdsSelectOption>
+                    <SgdsSelectOption value="850-plus">$850k+</SgdsSelectOption>
+                  </SgdsSelect>
+                  <SgdsSelect label="Lease remaining" name="mobile-lease" value={leaseBand} placeholder="Any lease" onSgdsSelect={(event) => setLeaseBand((event.target as ValueElement).value as MapFilters["leaseBand"])}>
+                    <SgdsSelectOption value="any">Any lease</SgdsSelectOption>
+                    <SgdsSelectOption value="80-plus">80+ years</SgdsSelectOption>
+                    <SgdsSelectOption value="70-79">70–79 years</SgdsSelectOption>
+                    <SgdsSelectOption value="60-69">60–69 years</SgdsSelectOption>
+                    <SgdsSelectOption value="under-60">Under 60 years</SgdsSelectOption>
+                  </SgdsSelect>
+                </div>
+                <div slot="footer"><SgdsButton variant="primary" ariaLabel="Apply filters" onClick={() => setMobileFiltersOpen(false)}>Apply filters</SgdsButton></div>
+              </SgdsDrawer>
+            </div>
           </div>
           <aside className="sgds:pointer-events-auto sgds:absolute sgds:left-4 sgds:bottom-4 sgds:flex sgds:flex-wrap sgds:items-center sgds:gap-component-xs sgds:bg-surface-raised sgds:border sgds:border-default sgds:rounded-lg sgds:shadow-lg sgds:p-component-xs" aria-label="Price per square foot legend">
             <div className="sgds:text-overline-md sgds:font-semibold sgds:leading-2-xs sgds:tracking-wide sgds:uppercase sgds:text-body-subtle">Price per sq ft</div>
@@ -183,7 +233,7 @@ export default function PriceMap({ initialMarkers, flatTypes, initialFilters, in
             <div className="sgds:flex sgds:items-center sgds:gap-text-2-xs"><span className="map-legend-swatch map-legend-swatch-745-plus" aria-hidden="true" /><span className="sgds:text-label-sm sgds:font-regular sgds:leading-2-xs sgds:tracking-normal sgds:text-body-default">$745+</span></div>
           </aside>
 
-          {selected && <aside className="sgds:pointer-events-auto sgds:absolute sgds:right-4 sgds:bottom-4 sgds:w-[calc(100%-2rem)] sgds:md:top-24 sgds:md:bottom-auto sgds:md:w-80 sgds:max-h-[calc(100%-10rem)] sgds:overflow-y-auto sgds:bg-surface-raised sgds:border sgds:border-default sgds:rounded-lg sgds:shadow-lg sgds:p-component-xs" aria-live="polite">
+          {selected && <aside className="sgds:pointer-events-auto sgds:absolute sgds:right-4 sgds:bottom-4 sgds:w-[calc(100%-2rem)] sgds:md:top-48 sgds:md:bottom-auto sgds:md:w-80 sgds:max-h-[calc(100%-14rem)] sgds:overflow-y-auto sgds:bg-surface-raised sgds:border sgds:border-default sgds:rounded-lg sgds:shadow-lg sgds:p-component-xs" aria-live="polite">
             <div className="sgds:flex sgds:items-start sgds:justify-between sgds:gap-component-sm">
               <div className="sgds:flex sgds:flex-col sgds:gap-text-xs">
                 <div className="sgds:text-overline-md sgds:font-semibold sgds:leading-2-xs sgds:tracking-wide sgds:uppercase sgds:text-body-subtle">Recent transactions</div>
