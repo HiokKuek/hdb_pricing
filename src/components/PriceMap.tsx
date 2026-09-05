@@ -141,7 +141,6 @@ export default function PriceMap({ initialMarkers, flatTypes, initialFilters, in
       .then((data: { markers: MapMarker[] }) => {
         if (controller.signal.aborted) return;
         setMarkers(data.markers);
-        setSelected(null);
         setShowEmptyViewToast(data.markers.length === 0 && (flatType !== "all" || budget !== "any" || leaseBand !== "any"));
       })
       .catch((error: unknown) => {
