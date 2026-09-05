@@ -56,6 +56,12 @@
   transform: translateY(-0.525rem) rotate(-45deg);
 }
 
+@media (min-width: 1024px) {
+  .map-menu-toggle {
+    display: none;
+  }
+}
+
 .map-options-drawer-layer {
   inset: 0;
   position: fixed;
