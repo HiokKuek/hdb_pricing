@@ -13,6 +13,12 @@
   width: 0.625rem;
 }
 
+@media (max-width: 767px) {
+  .about-map-modal {
+    --sgds-dimension-640: calc(100vw - 2rem);
+  }
+}
+
 .map-search-action {
   z-index: 1;
 }
@@ -96,50 +102,15 @@
   outline-offset: var(--sgds-outline-offset-focus);
 }
 
-.map-menu-toggle {
-  align-items: center;
-  background: var(--sgds-surface-default);
-  border: 2px solid #2a2a2a;
-  border-radius: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  height: 3.5rem;
-  justify-content: center;
-  padding: 0;
+.map-menu-trigger {
   position: fixed;
   right: max(1rem, env(safe-area-inset-right));
   top: max(1rem, env(safe-area-inset-top));
-  width: 3.5rem;
   z-index: 1001;
 }
 
-.map-menu-toggle-bar {
-  background: #2a2a2a;
-  border-radius: 9999px;
-  display: block;
-  height: 0.125rem;
-  transition: transform 250ms ease, opacity 150ms ease;
-  width: 1.875rem;
-}
-
-.map-menu-toggle-spacer {
-  display: block;
-  height: 0.125rem;
-  visibility: hidden;
-  width: 1.875rem;
-}
-
-.map-menu-toggle--open .map-menu-toggle-bar:nth-child(1) {
-  transform: translateY(0.525rem) rotate(45deg);
-}
-
-.map-menu-toggle--open .map-menu-toggle-bar:last-child {
-  transform: translateY(-0.525rem) rotate(-45deg);
-}
-
 @media (min-width: 1024px) {
-  .map-menu-toggle {
+  .map-menu-trigger {
     display: none;
   }
 }
@@ -182,10 +153,6 @@
 
 .map-options-drawer-layer--open .map-options-drawer {
   transform: translateX(0);
-}
-
-.map-options-drawer-header {
-  padding-right: 6rem;
 }
 
 .map-detail-sheet-layer {
@@ -282,7 +249,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .map-menu-toggle-bar,
   .map-options-drawer-backdrop,
   .map-options-drawer,
   .map-detail-sheet-backdrop,

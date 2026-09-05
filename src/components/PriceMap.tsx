@@ -346,43 +346,45 @@ export default function PriceMap({ initialMarkers, flatTypes, initialFilters, in
               </header>
             </div>
           </div>
-          <button
-            type="button"
-            className={`map-menu-toggle sgds:pointer-events-auto sgds:lg:hidden${mobileMenuOpen ? " map-menu-toggle--open" : ""}`}
-            aria-label={mobileMenuOpen ? "Close map menu" : "Open map menu"}
-            onClick={() => mobileMenuOpen ? closeMobileMenu() : openMobileMenu()}
-          >
-            <span className="map-menu-toggle-bar" />
-            {mobileMenuOpen ? <span className="map-menu-toggle-spacer" aria-hidden="true" /> : <span className="map-menu-toggle-bar" />}
-            <span className="map-menu-toggle-bar" />
-          </button>
+          {!mobileDrawerMounted && <div className="map-menu-trigger sgds:pointer-events-auto sgds:lg:hidden sgds:bg-surface-raised sgds:border sgds:border-default sgds:rounded-lg sgds:shadow-lg">
+            <SgdsIconButton name="menu" size="lg" variant="ghost" tone="neutral" ariaLabel="Filter map" onClick={openMobileMenu} />
+          </div>}
           {mobileDrawerMounted && <div className={`map-options-drawer-layer sgds:pointer-events-auto sgds:lg:hidden${mobileMenuOpen ? " map-options-drawer-layer--open" : ""}`}>
             <button className="map-options-drawer-backdrop" aria-label="Close map options" onClick={closeMobileMenu} />
-            <aside className="map-options-drawer" role="dialog" aria-modal="true" aria-label="Map search and filters" onTransitionEnd={(event) => { if (event.target === event.currentTarget && !mobileMenuOpen) unmountMobileDrawer(); }}>
-              <header className="map-options-drawer-header">
-                <h2 className="sgds:text-heading-lg sgds:font-bold sgds:leading-lg sgds:tracking-tight sgds:text-heading-default">Map options</h2>
-                <p className="sgds:mt-text-md sgds:text-body-lg sgds:leading-sm sgds:text-body-subtle">Search for a place or refine the resale prices shown on the map.</p>
+            <aside className="map-options-drawer sgds:flex sgds:flex-col" role="dialog" aria-modal="true" aria-label="Map search and filters" onTransitionEnd={(event) => { if (event.target === event.currentTarget && !mobileMenuOpen) unmountMobileDrawer(); }}>
+              <header className="sgds:flex sgds:items-start sgds:justify-between sgds:gap-component-sm">
+                <div>
+                  <h2 className="sgds:text-heading-lg sgds:font-bold sgds:leading-lg sgds:tracking-tight sgds:text-heading-default">Filter map</h2>
+                </div>
+                <SgdsIconButton name="close" size="lg" variant="ghost" tone="neutral" ariaLabel="Close filter map" onClick={closeMobileMenu} />
               </header>
-              <div className="sgds:flex sgds:flex-col sgds:gap-component-md sgds:mt-component-lg">
-                <section aria-labelledby="mobile-place-search-heading">
-                  <h3 id="mobile-place-search-heading" className="sgds:text-subtitle-sm sgds:font-semibold sgds:leading-xs sgds:tracking-normal sgds:text-heading-default">Search</h3>
-                  <div className="sgds:relative sgds:mt-text-xs">
-                    <SgdsInput type="text" aria-label="Search for a place" name="place-search-mobile" value={query} onSgdsInput={(event) => setQuery((event.target as ValueElement).value)} onKeyDown={submitPlaceSearch} placeholder="Search block, street or town" />
-                    {placeSearchState === "loading" && <div className="place-search-menu" aria-live="polite"><div className="place-search-status"><SgdsSpinner size="xs" label="Finding places" orientation="horizontal" /></div></div>}
-                    {placeSearchState === "complete" && places.length > 0 && <div className="place-search-menu" role="listbox" aria-label="Place search results">
-                      {places.map((place) => <button className="place-search-result" key={`${place.latitude}-${place.longitude}`} type="button" role="option" aria-label={place.address} onClick={() => selectPlace(place)}>{compactAddress(place.address)}</button>)}
-                    </div>}
-                    {placeSearchState === "complete" && places.length === 0 && <div className="place-search-menu" aria-live="polite"><div className="place-search-status">No places found</div></div>}
-                  </div>
-                </section>
-                <SgdsDivider />
-              <label className="mobile-filter-label">Flat type<select className="mobile-filter-select" name="mobile-flat-type" value={draftFlatType} onChange={(event) => setDraftFlatType(event.target.value)}><option value="all">All flat types</option>{flatTypes.map((type) => <option key={type} value={type}>{type}</option>)}</select></label>
-              <label className="mobile-filter-label">Price<select className="mobile-filter-select" name="mobile-price" value={draftBudget} onChange={(event) => setDraftBudget(event.target.value as MapFilters["priceBand"])}><option value="any">Any price</option><option value="under-650">Under $650k</option><option value="650-850">$650k–850k</option><option value="850-plus">$850k+</option></select></label>
-              <label className="mobile-filter-label">Lease remaining<select className="mobile-filter-select" name="mobile-lease" value={draftLeaseBand} onChange={(event) => setDraftLeaseBand(event.target.value as MapFilters["leaseBand"])}><option value="any">Any lease</option><option value="80-plus">80+ years</option><option value="70-79">70–79 years</option><option value="60-69">60–69 years</option><option value="under-60">Under 60 years</option></select></label>
+              <div>
+                <div className="sgds:flex sgds:flex-col sgds:gap-component-md sgds:mt-text-md">
+                  <section aria-labelledby="mobile-place-search-heading">
+                    <h3 id="mobile-place-search-heading" className="sgds:text-heading-sm sgds:font-semibold sgds:leading-sm sgds:tracking-tight sgds:text-heading-default">Find a place</h3>
+                    <div className="sgds:relative sgds:mt-text-xs">
+                      <SgdsInput type="text" aria-label="Search for a place" name="place-search-mobile" value={query} onSgdsInput={(event) => setQuery((event.target as ValueElement).value)} onKeyDown={submitPlaceSearch} placeholder="Search block, street or town" />
+                      {placeSearchState === "loading" && <div className="place-search-menu" aria-live="polite"><div className="place-search-status"><SgdsSpinner size="xs" label="Finding places" orientation="horizontal" /></div></div>}
+                      {placeSearchState === "complete" && places.length > 0 && <div className="place-search-menu" role="listbox" aria-label="Place search results">
+                        {places.map((place) => <button className="place-search-result" key={`${place.latitude}-${place.longitude}`} type="button" role="option" aria-label={place.address} onClick={() => selectPlace(place)}>{compactAddress(place.address)}</button>)}
+                      </div>}
+                      {placeSearchState === "complete" && places.length === 0 && <div className="place-search-menu" aria-live="polite"><div className="place-search-status">No places found</div></div>}
+                    </div>
+                  </section>
+                  <SgdsDivider />
+                  <section aria-labelledby="mobile-refine-prices-heading">
+                    <h3 id="mobile-refine-prices-heading" className="sgds:text-heading-sm sgds:font-semibold sgds:leading-sm sgds:tracking-tight sgds:text-heading-default">Refine prices</h3>
+                    <div className="sgds:mt-text-xs sgds:flex sgds:flex-col sgds:gap-component-sm">
+                      <label className="mobile-filter-label">Flat type<select className="mobile-filter-select" name="mobile-flat-type" value={draftFlatType} onChange={(event) => setDraftFlatType(event.target.value)}><option value="all">All flat types</option>{flatTypes.map((type) => <option key={type} value={type}>{type}</option>)}</select></label>
+                      <label className="mobile-filter-label">Price<select className="mobile-filter-select" name="mobile-price" value={draftBudget} onChange={(event) => setDraftBudget(event.target.value as MapFilters["priceBand"])}><option value="any">Any price</option><option value="under-650">Under $650k</option><option value="650-850">$650k–850k</option><option value="850-plus">$850k+</option></select></label>
+                      <label className="mobile-filter-label">Lease remaining<select className="mobile-filter-select" name="mobile-lease" value={draftLeaseBand} onChange={(event) => setDraftLeaseBand(event.target.value as MapFilters["leaseBand"])}><option value="any">Any lease</option><option value="80-plus">80+ years</option><option value="70-79">70–79 years</option><option value="60-69">60–69 years</option><option value="under-60">Under 60 years</option></select></label>
+                    </div>
+                  </section>
+                </div>
+                <div className="sgds:mt-component-lg"><SgdsButton variant="primary" onClick={applyMobileFilters}>Apply filters</SgdsButton></div>
               </div>
-              <div className="sgds:mt-component-lg"><SgdsButton variant="outline" tone="neutral" ariaLabel="Apply filters" onClick={applyMobileFilters}>Apply filters</SgdsButton></div>
-              <div className="sgds:mt-component-md sgds:pt-component-md sgds:border-t sgds:border-default">
-                <SgdsButton variant="ghost" tone="neutral" onClick={openAboutMap}>About this map</SgdsButton>
+              <div className="sgds:mt-auto sgds:pt-component-md sgds:border-t sgds:border-default">
+                <SgdsButton variant="ghost" tone="neutral" onClick={openAboutMap}>About HDB Pricing</SgdsButton>
               </div>
             </aside>
           </div>}
@@ -395,7 +397,7 @@ export default function PriceMap({ initialMarkers, flatTypes, initialFilters, in
               {MAP_COLOUR_SCALE.map((band) => <div className="sgds:flex sgds:min-w-0 sgds:items-center sgds:gap-text-2-xs" key={band.id}><span className={`map-legend-swatch map-colour-scale-${band.id}`} aria-hidden="true" /><span className="sgds:text-label-sm sgds:font-regular sgds:leading-2-xs sgds:tracking-normal sgds:text-body-default">{band.label}</span></div>)}
             </aside>
             <div className="sgds:hidden sgds:lg:flex sgds:bg-surface-raised sgds:border sgds:border-default sgds:rounded-lg sgds:shadow-lg">
-              <SgdsIconButton name="info-circle" variant="ghost" tone="neutral" ariaLabel="About this map" onClick={openAboutMap} />
+              <SgdsIconButton name="info-circle" variant="ghost" tone="neutral" ariaLabel="About HDB Pricing" onClick={openAboutMap} />
             </div>
           </div>
 
