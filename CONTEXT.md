@@ -30,6 +30,6 @@
 
 **Price Band** — A fixed, labelled price-per-square-foot range in the Map Colour Scale. A block keeps the same band meaning as the Buyer pans or changes filters.
 
-**Transaction Detail** — The evidence shown after a Buyer selects a block: its recent Resale Transactions with month, flat type, floor area in square feet, storey range, lease commencement year, total sale price, and price per square foot. It closes when a Buyer changes any Buyer Filter.
+**Transaction Detail** — The evidence shown after a Buyer selects a block: its recent Resale Transactions with month, flat type, floor area in square feet, storey range, lease commencement year, total sale price, and price per square foot. Lease commencement year is displayed for each transaction. It closes when a Buyer changes any Buyer Filter.
 
 **No-Match State** — The honest result when a block or filter selection has no qualifying Resale Transactions. When an active Buyer Filter has matches elsewhere but none in the current map view, it appears as a small dismissible toast for about five seconds that encourages the Buyer to pan or search another location. It offers a broader recency window and never substitutes an estimate.
