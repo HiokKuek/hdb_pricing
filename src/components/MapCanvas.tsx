@@ -98,7 +98,7 @@ export default function MapCanvas({ markers, selectedId, focus, onSelect, onView
     <MapContainer center={DEFAULT_MAP_CENTER} zoom={initialZoom} scrollWheelZoom preferCanvas className="sgds:h-full sgds:w-full" zoomControl={false}>
       <TileLayer
         attribution='&copy; <a href="https://www.onemap.gov.sg/">OneMap</a>'
-        url="https://www.onemap.gov.sg/maps/tiles/Grey/{z}/{x}/{y}.png"
+        url="https://www.onemap.gov.sg/maps/tiles/Default/{z}/{x}/{y}.png"
       />
       <Reframe focus={focus} />
       <ViewportObserver onViewportChange={onViewportChange} />
