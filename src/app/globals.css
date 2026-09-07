@@ -23,6 +23,22 @@
   z-index: 1;
 }
 
+.map-search-location-icon {
+  background: transparent;
+  border: 0;
+}
+
+.map-search-location-pin {
+  background: var(--sgds-primary-surface-emphasis);
+  border: 3px solid var(--sgds-surface-default);
+  border-radius: 50% 50% 50% 0;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 35%);
+  display: block;
+  height: 22px;
+  transform: rotate(-45deg);
+  width: 22px;
+}
+
 .map-ui-overlay {
   z-index: 1100;
 }

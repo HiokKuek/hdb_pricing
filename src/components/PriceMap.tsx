@@ -59,6 +59,7 @@ export default function PriceMap({ initialMarkers, flatTypes, initialFilters, in
   const [places, setPlaces] = useState<Place[]>([]);
   const [placeSearchState, setPlaceSearchState] = useState<"idle" | "loading" | "complete">("idle");
   const [focus, setFocus] = useState<[number, number] | null>(null);
+  const [searchedPlace, setSearchedPlace] = useState<Place | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileDrawerMounted, setMobileDrawerMounted] = useState(false);
   const [draftFlatType, setDraftFlatType] = useState(initialFilters.flatType);
@@ -189,6 +190,7 @@ export default function PriceMap({ initialMarkers, flatTypes, initialFilters, in
   function selectPlace(place: Place) {
     clearTransactionDetail();
     setFocus([place.latitude, place.longitude]);
+    setSearchedPlace(place);
     selectedPlaceQueryRef.current = place.address;
     setQuery(place.address);
     setPlaces([]);
@@ -291,7 +293,7 @@ export default function PriceMap({ initialMarkers, flatTypes, initialFilters, in
 
   return (
     <main className="map-app-shell sgds:relative sgds:overflow-hidden" aria-label="HDB resale price map">
-        <div className="sgds:absolute sgds:inset-0"><MapCanvas markers={markers} selectedId={selected?.id ?? null} focus={focus} onSelect={selectBlock} onViewportChange={updateViewport} initialZoom={initialZoom} /></div>
+        <div className="sgds:absolute sgds:inset-0"><MapCanvas markers={markers} selectedId={selected?.id ?? null} focus={focus} searchedPlace={searchedPlace} onSelect={selectBlock} onViewportChange={updateViewport} initialZoom={initialZoom} /></div>
         <section className="map-ui-overlay sgds:absolute sgds:inset-0 sgds:pointer-events-none" aria-label="Map controls and resale evidence">
           <div className="map-controls sgds:pointer-events-auto sgds:absolute sgds:left-1/2 sgds:w-[calc(100%-2rem)] sgds:lg:w-[calc(100%-3rem)] sgds:-translate-x-1/2">
             <div className="sgds:hidden sgds:lg:grid sgds:lg:grid-cols-[13rem_minmax(14rem,1fr)_repeat(3,9rem)] sgds:2-xl:grid-cols-[18rem_minmax(14rem,1fr)_repeat(3,9rem)] sgds:lg:items-end sgds:lg:gap-component-xs">

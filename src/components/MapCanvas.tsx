@@ -12,10 +12,30 @@ type Props = {
   markers: MapMarker[];
   selectedId: string | null;
   focus: [number, number] | null;
+  searchedPlace: { address: string; latitude: number; longitude: number } | null;
   onSelect: (block: BlockSummary) => void;
   onViewportChange: (viewport: { bounds: { south: number; west: number; north: number; east: number }; zoom: number }) => void;
   initialZoom: number;
 };
+
+const searchedPlaceIcon = L.divIcon({
+  className: "map-search-location-icon",
+  html: '<span class="map-search-location-pin" aria-hidden="true"></span>',
+  iconSize: [30, 30],
+  iconAnchor: [15, 30],
+  tooltipAnchor: [0, -30],
+});
+
+function distanceInMetres(first: { latitude: number; longitude: number }, second: { latitude: number; longitude: number }) {
+  const radians = Math.PI / 180;
+  const latitudeDelta = (second.latitude - first.latitude) * radians;
+  const longitudeDelta = (second.longitude - first.longitude) * radians;
+  const firstLatitude = first.latitude * radians;
+  const secondLatitude = second.latitude * radians;
+  const distance = Math.sin(latitudeDelta / 2) ** 2
+    + Math.cos(firstLatitude) * Math.cos(secondLatitude) * Math.sin(longitudeDelta / 2) ** 2;
+  return 6_371_000 * 2 * Math.atan2(Math.sqrt(distance), Math.sqrt(1 - distance));
+}
 
 function Reframe({ focus }: { focus: [number, number] | null }) {
   const map = useMap();
@@ -89,11 +109,14 @@ function ClusterMarkers({ clusters }: { clusters: MapCluster[] }) {
   ));
 }
 
-export default function MapCanvas({ markers, selectedId, focus, onSelect, onViewportChange, initialZoom }: Props) {
+export default function MapCanvas({ markers, selectedId, focus, searchedPlace, onSelect, onViewportChange, initialZoom }: Props) {
   const canvasRenderer = useMemo(() => L.canvas({ padding: 0.5 }), []);
   const [hoveredBlockId, setHoveredBlockId] = useState<string | null>(null);
   const blocks = markers.filter((marker): marker is BlockSummary & { kind: "block" } => marker.kind === "block");
   const clusters = markers.filter((marker): marker is MapCluster => marker.kind === "cluster");
+  const searchedBlock = searchedPlace
+    ? blocks.find((block) => distanceInMetres(searchedPlace, block) <= 25)
+    : undefined;
   return (
     <MapContainer center={DEFAULT_MAP_CENTER} zoom={initialZoom} scrollWheelZoom preferCanvas className="sgds:h-full sgds:w-full" zoomControl={false}>
       <TileLayer
@@ -103,6 +126,19 @@ export default function MapCanvas({ markers, selectedId, focus, onSelect, onView
       <Reframe focus={focus} />
       <ViewportObserver onViewportChange={onViewportChange} />
       <MapSizeObserver />
+      {searchedPlace && (
+        <Marker
+          position={[searchedPlace.latitude, searchedPlace.longitude]}
+          icon={searchedPlaceIcon}
+          alt={`Searched location: ${searchedPlace.address}`}
+          title={searchedBlock ? `Searched location: ${searchedPlace.address}. Click to view resale history.` : `Searched location: ${searchedPlace.address}`}
+          eventHandlers={searchedBlock ? { click: () => onSelect(searchedBlock) } : undefined}
+        >
+          <Tooltip direction="top" offset={[0, -8]} opacity={1}>
+            {searchedPlace.address}{searchedBlock && <><br />Click to view resale history</>}
+          </Tooltip>
+        </Marker>
+      )}
       <ClusterMarkers clusters={clusters} />
       {blocks.map((block) => {
         const isSelected = block.id === selectedId;
